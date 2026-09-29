@@ -1,555 +1,322 @@
-// ========================================
-// BUY PAY — TELEGRAM WEB APP
-// ========================================
+const tg = window.Telegram.WebApp;
 
-// Telegram WebApp
-let tg = null;
-
-function initTelegram() {
-    if (window.Telegram && window.Telegram.WebApp) {
-        tg = window.Telegram.WebApp;
-
-        tg.ready();
-        tg.expand();
-
-        console.log("Telegram WebApp подключён");
-        return true;
-    }
-
-    console.log("Telegram WebApp не найден");
-    return false;
-}
-
-initTelegram();
-
-
-// ========================================
-// ДАННЫЕ ЗАКАЗА
-// ========================================
+tg.ready();
+tg.expand();
 
 let selectedGame = "";
-let selectedAmount = 0;
-let selectedPrice = 0;
+let selectedPackage = null;
+
+// ===============================
+// ДАННЫЕ ИГР
+// ===============================
+
+const games = {
+    PUBG: [
+        { amount: "60 UC", price: 15000 },
+        { amount: "325 UC", price: 70000 },
+        { amount: "660 UC", price: 130000 },
+        { amount: "1800 UC", price: 330000 }
+    ],
+
+    "Mobile Legends": [
+        { amount: "86 Diamonds", price: 15000 },
+        { amount: "172 Diamonds", price: 30000 },
+        { amount: "257 Diamonds", price: 45000 },
+        { amount: "706 Diamonds", price: 110000 }
+    ],
+
+    "Free Fire": [
+        { amount: "100 Diamonds", price: 15000 },
+        { amount: "310 Diamonds", price: 40000 },
+        { amount: "520 Diamonds", price: 65000 },
+        { amount: "1060 Diamonds", price: 125000 }
+    ],
+
+    "Brawl Stars": [
+        { amount: "30 Gems", price: 15000 },
+        { amount: "80 Gems", price: 35000 },
+        { amount: "170 Gems", price: 70000 },
+        { amount: "360 Gems", price: 140000 }
+    ]
+};
 
 
-// ========================================
-// ПОЛЬЗОВАТЕЛЬ TELEGRAM
-// ========================================
-
-function getTelegramUser() {
-    if (!tg) return null;
-
-    return tg.initDataUnsafe?.user || null;
-}
-
-
-// ========================================
-// ПРИВЕТСТВИЕ
-// ========================================
-
-function loadUser() {
-
-    const welcomeText = document.getElementById("welcomeText");
-    const profile = document.getElementById("profile");
-
-    const user = getTelegramUser();
-
-    if (user) {
-
-        const firstName = user.first_name || "Пользователь";
-
-        welcomeText.textContent =
-            `Xush kelibsiz, ${firstName}!`;
-
-        if (user.photo_url) {
-
-            profile.innerHTML = `
-                <img
-                    src="${user.photo_url}"
-                    style="
-                        width:100%;
-                        height:100%;
-                        border-radius:50%;
-                        object-fit:cover;
-                    "
-                >
-            `;
-        }
-
-    } else {
-
-        welcomeText.textContent =
-            "Xush kelibsiz!";
-
-    }
-}
-
-
-// ========================================
+// ===============================
 // ВЫБОР ИГРЫ
-// ========================================
+// ===============================
 
 function selectGame(game) {
 
     selectedGame = game;
+    selectedPackage = null;
 
-    document.getElementById("selectedGame").textContent = game;
-    document.getElementById("summaryGame").textContent = game;
-
-    let packages = "";
-
-
-    // ====================================
-    // PUBG MOBILE
-    // ====================================
-
-    if (game === "PUBG Mobile") {
-
-        packages = `
-
-            <button class="package"
-                onclick="selectPackage(this, 60, 12000)">
-
-                <strong>60 UC</strong>
-                <span>12 000 сум</span>
-
-            </button>
-
-
-            <button class="package"
-                onclick="selectPackage(this, 325, 55000)">
-
-                <strong>325 UC</strong>
-                <span>55 000 сум</span>
-
-            </button>
-
-
-            <button class="package"
-                onclick="selectPackage(this, 660, 105000)">
-
-                <strong>660 UC</strong>
-                <span>105 000 сум</span>
-
-            </button>
-
-
-            <button class="package"
-                onclick="selectPackage(this, 1800, 270000)">
-
-                <strong>1800 UC</strong>
-                <span>270 000 сум</span>
-
-            </button>
-
-        `;
-    }
-
-
-    // ====================================
-    // MOBILE LEGENDS
-    // ====================================
-
-    else if (game === "Mobile Legends") {
-
-        packages = `
-
-            <button class="package"
-                onclick="selectPackage(this, 86, 12000)">
-
-                <strong>86 Diamonds</strong>
-                <span>12 000 сум</span>
-
-            </button>
-
-
-            <button class="package"
-                onclick="selectPackage(this, 172, 23000)">
-
-                <strong>172 Diamonds</strong>
-                <span>23 000 сум</span>
-
-            </button>
-
-
-            <button class="package"
-                onclick="selectPackage(this, 257, 34000)">
-
-                <strong>257 Diamonds</strong>
-                <span>34 000 сум</span>
-
-            </button>
-
-
-            <button class="package"
-                onclick="selectPackage(this, 706, 85000)">
-
-                <strong>706 Diamonds</strong>
-                <span>85 000 сум</span>
-
-            </button>
-
-        `;
-    }
-
-
-    // ====================================
-    // FREE FIRE
-    // ====================================
-
-    else if (game === "Free Fire") {
-
-        packages = `
-
-            <button class="package"
-                onclick="selectPackage(this, 100, 12000)">
-
-                <strong>100 Diamonds</strong>
-                <span>12 000 сум</span>
-
-            </button>
-
-
-            <button class="package"
-                onclick="selectPackage(this, 310, 35000)">
-
-                <strong>310 Diamonds</strong>
-                <span>35 000 сум</span>
-
-            </button>
-
-
-            <button class="package"
-                onclick="selectPackage(this, 520, 55000)">
-
-                <strong>520 Diamonds</strong>
-                <span>55 000 сум</span>
-
-            </button>
-
-
-            <button class="package"
-                onclick="selectPackage(this, 1060, 105000)">
-
-                <strong>1060 Diamonds</strong>
-                <span>105 000 сум</span>
-
-            </button>
-
-        `;
-    }
-
-
-    // ====================================
-    // BRAWL STARS
-    // ====================================
-
-    else if (game === "Brawl Stars") {
-
-        packages = `
-
-            <button class="package"
-                onclick="selectPackage(this, 30, 12000)">
-
-                <strong>30 Gems</strong>
-                <span>12 000 сум</span>
-
-            </button>
-
-
-            <button class="package"
-                onclick="selectPackage(this, 80, 30000)">
-
-                <strong>80 Gems</strong>
-                <span>30 000 сум</span>
-
-            </button>
-
-
-            <button class="package"
-                onclick="selectPackage(this, 170, 60000)">
-
-                <strong>170 Gems</strong>
-                <span>60 000 сум</span>
-
-            </button>
-
-
-            <button class="package"
-                onclick="selectPackage(this, 360, 120000)">
-
-                <strong>360 Gems</strong>
-                <span>120 000 сум</span>
-
-            </button>
-
-        `;
-    }
-
-
-    document.querySelector(".packages").innerHTML = packages;
-
-
-    selectedAmount = 0;
-    selectedPrice = 0;
-
-
-    document.getElementById("summaryPackage").textContent = "—";
-
-    document.getElementById("summaryPrice").textContent =
-        "0 сум";
-
-
-    document.getElementById("orderSection").scrollIntoView({
-        behavior: "smooth"
+    document.querySelectorAll(".game-card").forEach(card => {
+        card.classList.remove("active");
     });
 
+    const packagesContainer = document.querySelector(".packages");
+
+    packagesContainer.innerHTML = "";
+
+    games[game].forEach((item, index) => {
+
+        const packageElement = document.createElement("div");
+
+        packageElement.className = "package";
+
+        packageElement.innerHTML = `
+            <div>
+                <strong>${item.amount}</strong>
+                <span>${item.price.toLocaleString()} сум</span>
+            </div>
+        `;
+
+        packageElement.onclick = () => selectPackage(index, packageElement);
+
+        packagesContainer.appendChild(packageElement);
+    });
+
+    updateSummary();
 }
 
 
-// ========================================
+// ===============================
 // ВЫБОР ПАКЕТА
-// ========================================
+// ===============================
 
-function selectPackage(button, amount, price) {
-
-    selectedAmount = amount;
-    selectedPrice = price;
-
-
-    document.getElementById("summaryPackage").textContent =
-        amount;
-
-
-    document.getElementById("summaryPrice").textContent =
-        price.toLocaleString("ru-RU") + " сум";
-
+function selectPackage(index, element) {
 
     document.querySelectorAll(".package").forEach(item => {
-
-        item.classList.remove("selected");
-
+        item.classList.remove("active");
     });
 
+    element.classList.add("active");
 
-    button.classList.add("selected");
+    selectedPackage = games[selectedGame][index];
+
+    updateSummary();
 }
 
 
-// ========================================
+// ===============================
+// ОБНОВЛЕНИЕ ИНФОРМАЦИИ О ЗАКАЗЕ
+// ===============================
+
+function updateSummary() {
+
+    const gameElement = document.getElementById("summary-game");
+    const amountElement = document.getElementById("summary-amount");
+    const priceElement = document.getElementById("summary-price");
+
+    if (gameElement) {
+        gameElement.textContent = selectedGame || "Не выбрана";
+    }
+
+    if (amountElement) {
+        amountElement.textContent =
+            selectedPackage ? selectedPackage.amount : "Не выбран";
+    }
+
+    if (priceElement) {
+        priceElement.textContent =
+            selectedPackage
+                ? selectedPackage.price.toLocaleString() + " сум"
+                : "0 сум";
+    }
+}
+
+
+// ===============================
+// УНИКАЛЬНЫЙ НОМЕР ЗАКАЗА
+// ===============================
+
+function generateOrderNumber() {
+
+    const randomNumber = Math.floor(
+        100000 + Math.random() * 900000
+    );
+
+    return `BP-${randomNumber}`;
+}
+
+
+// ===============================
 // СОЗДАНИЕ ЗАКАЗА
-// ========================================
+// ===============================
 
 function createOrder() {
 
-    // Получаем ID игрока
-    const playerId =
-        document.getElementById("playerId").value.trim();
+    const playerInput = document.getElementById("player-id");
 
-
-    // Проверяем игру
     if (!selectedGame) {
 
-        showMessage("Сначала выберите игру.");
+        tg.showPopup({
+            title: "Ошибка",
+            message: "Сначала выберите игру.",
+            buttons: [{ type: "ok" }]
+        });
 
         return;
     }
 
+    if (!selectedPackage) {
 
-    // Проверяем пакет
-    if (!selectedAmount) {
-
-        showMessage("Выберите пакет.");
-
-        return;
-    }
-
-
-    // Проверяем ID
-    if (!playerId) {
-
-        showMessage("Введите ID игрока.");
-
-        document.getElementById("playerId").focus();
+        tg.showPopup({
+            title: "Ошибка",
+            message: "Выберите пакет.",
+            buttons: [{ type: "ok" }]
+        });
 
         return;
     }
 
+    if (!playerInput || !playerInput.value.trim()) {
 
-    // Получаем пользователя Telegram
-    const user = getTelegramUser();
+        tg.showPopup({
+            title: "Ошибка",
+            message: "Введите ID игрока.",
+            buttons: [{ type: "ok" }]
+        });
 
+        return;
+    }
 
-    // ====================================
-    // СОЗДАЁМ ЗАКАЗ
-    // ====================================
+    const playerId = playerInput.value.trim();
+
+    // Создаём уникальный номер
+    const orderNumber = generateOrderNumber();
+
+    const user = tg.initDataUnsafe?.user || {};
 
     const order = {
 
+        order_number: orderNumber,
+
         game: selectedGame,
 
-        amount: selectedAmount,
+        amount: selectedPackage.amount,
 
-        price: selectedPrice,
+        price: selectedPackage.price,
 
         player_id: playerId,
 
-        telegram_id: user?.id || null,
+        telegram_id: user.id || "",
 
-        telegram_username: user?.username || null,
+        telegram_username: user.username || "",
 
-        first_name: user?.first_name || null
+        first_name: user.first_name || "",
 
+        status: "Новый",
+
+        created_at: new Date().toISOString()
     };
 
 
-    console.log("BUY PAY ORDER:");
-    console.log(order);
+    // Красивое сообщение пользователю
+
+    const message = `
+🎉 ЗАКАЗ СОЗДАН!
+
+🆔 Номер заказа: #${orderNumber}
+
+🎮 Игра: ${order.game}
+💎 Товар: ${order.amount}
+👤 ID игрока: ${order.player_id}
+
+💰 Сумма: ${order.price.toLocaleString()} сум
+
+📦 Статус: Новый
+
+Спасибо за заказ в BuyPay! 🚀
+    `;
 
 
-    const message =
-
-        `🎮 Игра: ${selectedGame}\n` +
-
-        `💎 Пакет: ${selectedAmount}\n` +
-
-        `🆔 ID игрока: ${playerId}\n` +
-
-        `💰 Сумма: ${selectedPrice.toLocaleString("ru-RU")} сум`;
-
-
-    // ====================================
-    // TELEGRAM WEB APP
-    // ====================================
-
-    if (
-        tg &&
-        typeof tg.sendData === "function"
-    ) {
-
-        tg.showPopup(
-
-            {
-                title: "Подтверждение заказа",
-
-                message: message,
-
-                buttons: [
-
-                    {
-                        id: "confirm",
-
-                        type: "default",
-
-                        text: "Подтвердить"
-                    },
-
-                    {
-                        id: "cancel",
-
-                        type: "cancel",
-
-                        text: "Отмена"
-                    }
-
-                ]
-            },
-
-            function(buttonId) {
-
-                // Пользователь подтвердил
-                if (buttonId === "confirm") {
-
-                    console.log(
-                        "Отправляем заказ боту..."
-                    );
-
-
-                    // ОТПРАВЛЯЕМ ЗАКАЗ БОТУ
-                    tg.sendData(
-                        JSON.stringify(order)
-                    );
-
+    tg.showPopup(
+        {
+            title: "Заказ создан!",
+            message: message,
+            buttons: [
+                {
+                    id: "send",
+                    type: "default",
+                    text: "Продолжить"
+                },
+                {
+                    id: "cancel",
+                    type: "cancel",
+                    text: "Отмена"
                 }
+            ]
+        },
 
+        function(buttonId) {
+
+            if (buttonId === "send") {
+
+                // Отправляем заказ Telegram-боту
+                tg.sendData(JSON.stringify(order));
+
+                // На всякий случай сохраняем заказ
+                localStorage.setItem(
+                    "lastOrder",
+                    JSON.stringify(order)
+                );
             }
+        }
+    );
+}
 
-        );
+
+// ===============================
+// ЗАКАЗЫ
+// ===============================
+
+function showOrders() {
+
+    const savedOrder = localStorage.getItem("lastOrder");
+
+    if (!savedOrder) {
+
+        tg.showPopup({
+            title: "Мои заказы",
+            message: "У вас пока нет заказов.",
+            buttons: [{ type: "ok" }]
+        });
 
         return;
     }
 
+    const order = JSON.parse(savedOrder);
 
-    // ====================================
-    // ЕСЛИ TELEGRAM НЕ НАЙДЕН
-    // ====================================
+    tg.showPopup({
+        title: "Мой заказ",
+        message: `
+🆔 #${order.order_number}
 
-    alert(
-        "BuyPay нужно открыть через Telegram."
-    );
+🎮 ${order.game}
+💎 ${order.amount}
+
+👤 ID: ${order.player_id}
+
+💰 ${order.price.toLocaleString()} сум
+
+📦 Статус: ${order.status}
+        `,
+        buttons: [{ type: "ok" }]
+    });
 }
 
 
-// ========================================
-// СООБЩЕНИЯ
-// ========================================
-
-function showMessage(message) {
-
-    if (
-        tg &&
-        typeof tg.showAlert === "function"
-    ) {
-
-        tg.showAlert(message);
-
-    } else {
-
-        alert(message);
-
-    }
-}
-
-
-// ========================================
-// ЗАКАЗЫ
-// ========================================
-
-function showOrders() {
-
-    showMessage(
-        "📦 Раздел «Заказы» пока находится в разработке."
-    );
-
-}
-
-
-// ========================================
+// ===============================
 // ПОМОЩЬ
-// ========================================
+// ===============================
 
 function showHelp() {
 
-    showMessage(
-        "❓ Если у вас возникли проблемы с заказом, обратитесь в поддержку BuyPay."
-    );
-
+    tg.showPopup({
+        title: "YORDAM",
+        message:
+            "Если у вас возникли проблемы с заказом, обратитесь в поддержку BuyPay.",
+        buttons: [{ type: "ok" }]
+    });
 }
-
-
-// ========================================
-// ЗАПУСК
-// ========================================
-
-window.addEventListener(
-    "load",
-    function() {
-
-        // Ещё раз проверяем Telegram
-        initTelegram();
-
-        // Загружаем пользователя
-        loadUser();
-
-    }
-);
