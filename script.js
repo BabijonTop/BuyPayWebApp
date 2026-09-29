@@ -1,5 +1,5 @@
 // ========================================
-// BUY PAY — ANIMATED SCRIPT
+// BUY PAY — WEB APP
 // ========================================
 
 const tg = window.Telegram.WebApp;
@@ -9,52 +9,142 @@ tg.expand();
 
 
 // ========================================
+// SERVER
+// ========================================
+
+const API_URL =
+    "https://buypayserver.onrender.com";
+
+
+// ========================================
 // TELEGRAM USER
 // ========================================
 
-const telegramUser = tg.initDataUnsafe?.user || {};
+const telegramUser =
+    tg.initDataUnsafe?.user || {};
+
+
+// ========================================
+// WELCOME
+// ========================================
 
 const welcomeText =
     document.getElementById("welcomeText");
 
-if (welcomeText && telegramUser.first_name) {
+if (
+    welcomeText &&
+    telegramUser.first_name
+) {
+
     welcomeText.textContent =
         `Xush kelibsiz, ${telegramUser.first_name}!`;
+
 }
 
 
 // ========================================
-// ИГРЫ
+// ИГРЫ И ЦЕНЫ
 // ========================================
 
 const games = {
 
     "PUBG Mobile": [
-        { amount: "60 UC", price: 12000 },
-        { amount: "325 UC", price: 55000 },
-        { amount: "660 UC", price: 105000 },
-        { amount: "1800 UC", price: 270000 }
+
+        {
+            amount: "60 UC",
+            price: 12000
+        },
+
+        {
+            amount: "325 UC",
+            price: 55000
+        },
+
+        {
+            amount: "660 UC",
+            price: 105000
+        },
+
+        {
+            amount: "1800 UC",
+            price: 270000
+        }
+
     ],
+
 
     "Mobile Legends": [
-        { amount: "86 Diamonds", price: 15000 },
-        { amount: "172 Diamonds", price: 30000 },
-        { amount: "257 Diamonds", price: 45000 },
-        { amount: "706 Diamonds", price: 80000 }
+
+        {
+            amount: "86 Diamonds",
+            price: 15000
+        },
+
+        {
+            amount: "172 Diamonds",
+            price: 30000
+        },
+
+        {
+            amount: "257 Diamonds",
+            price: 45000
+        },
+
+        {
+            amount: "706 Diamonds",
+            price: 80000
+        }
+
     ],
+
 
     "Free Fire": [
-        { amount: "100 Diamonds", price: 15000 },
-        { amount: "310 Diamonds", price: 40000 },
-        { amount: "520 Diamonds", price: 65000 },
-        { amount: "1060 Diamonds", price: 120000 }
+
+        {
+            amount: "100 Diamonds",
+            price: 15000
+        },
+
+        {
+            amount: "310 Diamonds",
+            price: 40000
+        },
+
+        {
+            amount: "520 Diamonds",
+            price: 65000
+        },
+
+        {
+            amount: "1060 Diamonds",
+            price: 120000
+        }
+
     ],
 
+
     "Brawl Stars": [
-        { amount: "30 Gems", price: 15000 },
-        { amount: "80 Gems", price: 35000 },
-        { amount: "170 Gems", price: 70000 },
-        { amount: "360 Gems", price: 140000 }
+
+        {
+            amount: "30 Gems",
+            price: 15000
+        },
+
+        {
+            amount: "80 Gems",
+            price: 35000
+        },
+
+        {
+            amount: "170 Gems",
+            price: 70000
+        },
+
+        {
+            amount: "360 Gems",
+            price: 140000
+        }
+
     ]
 
 };
@@ -65,13 +155,69 @@ const games = {
 // ========================================
 
 let selectedGame = null;
+
 let selectedPackage = null;
+
 let currentOrder = null;
+
 let selectedPaymentMethod = null;
+
+let currentBalance = 0;
 
 
 // ========================================
-// ПЛАВНАЯ ПРОКРУТКА
+// ФОРМАТ ЦЕНЫ
+// ========================================
+
+function formatSum(amount) {
+
+    return Number(amount || 0)
+        .toLocaleString("ru-RU") + " сум";
+
+}
+
+
+// ========================================
+// ПОКАЗ POPUP
+// ========================================
+
+function showMessage(
+    title,
+    message
+) {
+
+    if (
+        tg &&
+        typeof tg.showPopup === "function"
+    ) {
+
+        tg.showPopup({
+
+            title: title,
+
+            message: message,
+
+            buttons: [
+                {
+                    type: "ok"
+                }
+            ]
+
+        });
+
+    } else {
+
+        alert(
+            title + "\n\n" + message
+        );
+
+    }
+
+}
+
+
+// ========================================
+// ПРОКРУТКА
 // ========================================
 
 function scrollToElement(element) {
@@ -95,16 +241,20 @@ function scrollToElement(element) {
             15;
 
         window.scrollTo({
+
             top: target,
+
             behavior: "smooth"
+
         });
 
     }, 200);
+
 }
 
 
 // ========================================
-// ПОКАЗ БЛОКА
+// ПОКАЗ / СКРЫТИЕ СЕКЦИЙ
 // ========================================
 
 function showSection(id) {
@@ -116,17 +266,18 @@ function showSection(id) {
         return;
     }
 
-    section.classList.remove("hidden-section");
+    section.classList.remove(
+        "hidden-section"
+    );
 
-    section.classList.add("show-section");
+    section.classList.add(
+        "show-section"
+    );
 
     scrollToElement(section);
+
 }
 
-
-// ========================================
-// СКРЫТИЕ БЛОКА
-// ========================================
 
 function hideSection(id) {
 
@@ -137,9 +288,194 @@ function hideSection(id) {
         return;
     }
 
-    section.classList.remove("show-section");
+    section.classList.remove(
+        "show-section"
+    );
 
-    section.classList.add("hidden-section");
+    section.classList.add(
+        "hidden-section"
+    );
+
+}
+
+
+// ========================================
+// СОЗДАНИЕ ПОЛЬЗОВАТЕЛЯ
+// ========================================
+
+async function registerUser() {
+
+    if (!telegramUser.id) {
+
+        console.log(
+            "Telegram user не найден"
+        );
+
+        return false;
+
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_URL}/user`,
+                {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+
+                        telegram_id:
+                            telegramUser.id,
+
+                        username:
+                            telegramUser.username || "",
+
+                        first_name:
+                            telegramUser.first_name || ""
+
+                    })
+
+                }
+            );
+
+
+        if (!response.ok) {
+
+            console.error(
+                "Ошибка создания пользователя:",
+                response.status
+            );
+
+            return false;
+
+        }
+
+
+        const data =
+            await response.json();
+
+        console.log(
+            "Пользователь:",
+            data
+        );
+
+        return true;
+
+    } catch (error) {
+
+        console.error(
+            "Ошибка соединения с сервером:",
+            error
+        );
+
+        return false;
+
+    }
+
+}
+
+
+// ========================================
+// ЗАГРУЗКА БАЛАНСА
+// ========================================
+
+async function loadBalance() {
+
+    const balanceElement =
+        document.getElementById(
+            "balanceAmount"
+        );
+
+
+    if (!telegramUser.id) {
+
+        if (balanceElement) {
+
+            balanceElement.textContent =
+                "0 сум";
+
+        }
+
+        return;
+
+    }
+
+
+    if (balanceElement) {
+
+        balanceElement.textContent =
+            "Загрузка...";
+
+    }
+
+
+    try {
+
+        await registerUser();
+
+
+        const response =
+            await fetch(
+                `${API_URL}/balance/${telegramUser.id}`
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Ошибка загрузки баланса"
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        currentBalance =
+            Number(data.balance || 0);
+
+
+        if (balanceElement) {
+
+            balanceElement.textContent =
+                formatSum(currentBalance);
+
+        }
+
+
+        console.log(
+            "Баланс:",
+            currentBalance
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Баланс:",
+            error
+        );
+
+
+        if (balanceElement) {
+
+            balanceElement.textContent =
+                "Ошибка";
+
+        }
+
+    }
+
 }
 
 
@@ -149,25 +485,29 @@ function hideSection(id) {
 
 function selectGame(gameName) {
 
-    console.log("Выбрана игра:", gameName);
+    console.log(
+        "Выбрана игра:",
+        gameName
+    );
 
-    selectedGame = gameName;
 
-    selectedPackage = null;
+    selectedGame =
+        gameName;
 
+    selectedPackage =
+        null;
 
-    // Убираем активность со всех игр
 
     document
         .querySelectorAll(".game-card")
         .forEach(card => {
 
-            card.classList.remove("active");
+            card.classList.remove(
+                "active"
+            );
 
         });
 
-
-    // Делаем выбранную игру активной
 
     document
         .querySelectorAll(".game-card")
@@ -181,17 +521,20 @@ function selectGame(gameName) {
                     )
             ) {
 
-                card.classList.add("active");
+                card.classList.add(
+                    "active"
+                );
 
             }
 
         });
 
 
-    // Название выбранной игры
-
     const selectedGameElement =
-        document.getElementById("selectedGame");
+        document.getElementById(
+            "selectedGame"
+        );
+
 
     if (selectedGameElement) {
 
@@ -201,35 +544,42 @@ function selectGame(gameName) {
     }
 
 
-    // Создаём пакеты
-
-    renderPackages(gameName);
-
-
-    // Показываем выбор валюты
-
-    showSection("packageSection");
+    renderPackages(
+        gameName
+    );
 
 
-    // Скрываем следующие этапы
+    showSection(
+        "packageSection"
+    );
 
-    hideSection("playerSection");
 
-    hideSection("summarySection");
+    hideSection(
+        "playerSection"
+    );
+
+
+    hideSection(
+        "summarySection"
+    );
 
 
     updateSummary();
+
 }
 
 
 // ========================================
-// СОЗДАНИЕ ПАКЕТОВ
+// ПОКАЗ ПАКЕТОВ
 // ========================================
 
 function renderPackages(gameName) {
 
     const container =
-        document.getElementById("packages");
+        document.getElementById(
+            "packages"
+        );
+
 
     if (!container) {
         return;
@@ -242,67 +592,80 @@ function renderPackages(gameName) {
     const packages =
         games[gameName];
 
+
     if (!packages) {
         return;
     }
 
 
-    packages.forEach((item, index) => {
+    packages.forEach(
+        (item, index) => {
 
-        const button =
-            document.createElement("button");
-
-        button.type = "button";
-
-        button.className = "package";
-
-        button.style.animationDelay =
-            `${index * 0.08}s`;
-
-
-        button.innerHTML = `
-
-            <div class="package-left">
-
-                <strong>
-                    ${item.amount}
-                </strong>
-
-                <small>
-                    Игровая валюта
-                </small>
-
-            </div>
-
-            <div class="package-price">
-
-                ${item.price.toLocaleString()}
-                сум
-
-                <span>›</span>
-
-            </div>
-
-        `;
-
-
-        button.addEventListener(
-            "click",
-            function () {
-
-                selectPackage(
-                    button,
-                    item.amount,
-                    item.price
+            const button =
+                document.createElement(
+                    "button"
                 );
 
-            }
-        );
+
+            button.type =
+                "button";
 
 
-        container.appendChild(button);
+            button.className =
+                "package";
 
-    });
+
+            button.style.animationDelay =
+                `${index * 0.08}s`;
+
+
+            button.innerHTML = `
+
+                <div class="package-left">
+
+                    <strong>
+                        ${item.amount}
+                    </strong>
+
+                    <small>
+                        Игровая валюта
+                    </small>
+
+                </div>
+
+
+                <div class="package-price">
+
+                    ${formatSum(item.price)}
+
+                    <span>›</span>
+
+                </div>
+
+            `;
+
+
+            button.addEventListener(
+                "click",
+                function () {
+
+                    selectPackage(
+                        button,
+                        item.amount,
+                        item.price
+                    );
+
+                }
+            );
+
+
+            container.appendChild(
+                button
+            );
+
+        }
+    );
+
 }
 
 
@@ -323,20 +686,20 @@ function selectPackage(
     );
 
 
-    // Убираем активность
-
     document
         .querySelectorAll(".package")
         .forEach(item => {
 
-            item.classList.remove("active");
+            item.classList.remove(
+                "active"
+            );
 
         });
 
 
-    // Активный пакет
-
-    button.classList.add("active");
+    button.classList.add(
+        "active"
+    );
 
 
     selectedPackage = {
@@ -348,26 +711,26 @@ function selectPackage(
     };
 
 
-    // Показываем ID
+    showSection(
+        "playerSection"
+    );
 
-    showSection("playerSection");
 
-
-    // Пока ID не введён,
-    // итог скрыт
-
-    hideSection("summarySection");
+    hideSection(
+        "summarySection"
+    );
 
 
     updateSummary();
 
 
-    // Фокус на поле ID
-
     setTimeout(() => {
 
         const input =
-            document.getElementById("playerId");
+            document.getElementById(
+                "playerId"
+            );
+
 
         if (input) {
 
@@ -376,30 +739,44 @@ function selectPackage(
         }
 
     }, 500);
+
 }
 
 
 // ========================================
-// ОБНОВЛЕНИЕ ИТОГА
+// ОБНОВЛЕНИЕ ЗАКАЗА
 // ========================================
 
 function updateSummary() {
 
     const summaryGame =
-        document.getElementById("summaryGame");
+        document.getElementById(
+            "summaryGame"
+        );
+
 
     const summaryPackage =
-        document.getElementById("summaryPackage");
+        document.getElementById(
+            "summaryPackage"
+        );
+
 
     const summaryPlayer =
-        document.getElementById("summaryPlayer");
+        document.getElementById(
+            "summaryPlayer"
+        );
+
 
     const summaryPrice =
-        document.getElementById("summaryPrice");
+        document.getElementById(
+            "summaryPrice"
+        );
 
 
     const playerInput =
-        document.getElementById("playerId");
+        document.getElementById(
+            "playerId"
+        );
 
 
     const playerId =
@@ -408,8 +785,6 @@ function updateSummary() {
             : "";
 
 
-    // Игра
-
     if (summaryGame) {
 
         summaryGame.textContent =
@@ -417,8 +792,6 @@ function updateSummary() {
 
     }
 
-
-    // Пакет
 
     if (summaryPackage) {
 
@@ -430,8 +803,6 @@ function updateSummary() {
     }
 
 
-    // ID игрока
-
     if (summaryPlayer) {
 
         summaryPlayer.textContent =
@@ -440,21 +811,17 @@ function updateSummary() {
     }
 
 
-    // Цена
-
     if (summaryPrice) {
 
         summaryPrice.textContent =
             selectedPackage
-                ? selectedPackage.price
-                    .toLocaleString() + " сум"
+                ? formatSum(
+                    selectedPackage.price
+                )
                 : "0 сум";
 
     }
 
-
-    // Показываем итог,
-    // если всё заполнено
 
     if (
         selectedGame &&
@@ -468,24 +835,21 @@ function updateSummary() {
             );
 
 
-        const wasHidden =
+        if (
             summarySection &&
             summarySection.classList.contains(
                 "hidden-section"
+            )
+        ) {
+
+            showSection(
+                "summarySection"
             );
 
-
-        showSection("summarySection");
-
-
-        // Если блок только появился —
-        // прокручиваем к нему
-
-        if (!wasHidden) {
-            return;
         }
 
     }
+
 }
 
 
@@ -501,7 +865,9 @@ function generateOrderNumber() {
             Math.random() * 900000
         );
 
+
     return `BP-${random}`;
+
 }
 
 
@@ -513,48 +879,32 @@ function createOrder() {
 
     if (!selectedGame) {
 
-        tg.showPopup({
-
-            title: "Выберите игру",
-
-            message:
-                "Сначала выберите игру.",
-
-            buttons: [
-                {
-                    type: "ok"
-                }
-            ]
-
-        });
+        showMessage(
+            "Выберите игру",
+            "Сначала выберите игру."
+        );
 
         return;
+
     }
 
 
     if (!selectedPackage) {
 
-        tg.showPopup({
-
-            title: "Выберите пакет",
-
-            message:
-                "Сначала выберите пакет.",
-
-            buttons: [
-                {
-                    type: "ok"
-                }
-            ]
-
-        });
+        showMessage(
+            "Выберите пакет",
+            "Сначала выберите пакет."
+        );
 
         return;
+
     }
 
 
     const playerInput =
-        document.getElementById("playerId");
+        document.getElementById(
+            "playerId"
+        );
 
 
     const playerId =
@@ -565,27 +915,37 @@ function createOrder() {
 
     if (!playerId) {
 
-        tg.showPopup({
-
-            title:
-                "Введите ID игрока",
-
-            message:
-                "Введите ID аккаунта.",
-
-            buttons: [
-                {
-                    type: "ok"
-                }
-            ]
-
-        });
+        showMessage(
+            "Введите ID игрока",
+            "Введите ID аккаунта."
+        );
 
         return;
+
     }
 
 
-    // Создаём заказ
+    // Проверяем баланс
+
+    if (
+        currentBalance <
+        selectedPackage.price
+    ) {
+
+        showMessage(
+
+            "Недостаточно средств",
+
+            `Ваш баланс: ${formatSum(currentBalance)}\n\n` +
+            `Стоимость заказа: ${formatSum(selectedPackage.price)}\n\n` +
+            "Пополните баланс и попробуйте снова."
+
+        );
+
+        return;
+
+    }
+
 
     currentOrder = {
 
@@ -625,12 +985,12 @@ function createOrder() {
     };
 
 
-    selectedPaymentMethod = null;
+    selectedPaymentMethod =
+        null;
 
-
-    // Открываем оплату
 
     showPaymentScreen();
+
 }
 
 
@@ -652,15 +1012,20 @@ function showPaymentScreen() {
 
 
     if (oldScreen) {
+
         oldScreen.remove();
+
     }
 
 
     const screen =
-        document.createElement("div");
+        document.createElement(
+            "div"
+        );
 
 
-    screen.id = "paymentScreen";
+    screen.id =
+        "paymentScreen";
 
 
     screen.innerHTML = `
@@ -694,7 +1059,9 @@ function showPaymentScreen() {
 
                 <div class="payment-order">
 
+
                     <div>
+
                         <span>
                             Заказ
                         </span>
@@ -702,10 +1069,12 @@ function showPaymentScreen() {
                         <strong>
                             #${currentOrder.order_number}
                         </strong>
+
                     </div>
 
 
                     <div>
+
                         <span>
                             Игра
                         </span>
@@ -713,10 +1082,12 @@ function showPaymentScreen() {
                         <strong>
                             ${currentOrder.game}
                         </strong>
+
                     </div>
 
 
                     <div>
+
                         <span>
                             Пакет
                         </span>
@@ -724,10 +1095,12 @@ function showPaymentScreen() {
                         <strong>
                             ${currentOrder.package}
                         </strong>
+
                     </div>
 
 
                     <div>
+
                         <span>
                             ID игрока
                         </span>
@@ -735,6 +1108,7 @@ function showPaymentScreen() {
                         <strong>
                             ${currentOrder.player_id}
                         </strong>
+
                     </div>
 
 
@@ -745,11 +1119,13 @@ function showPaymentScreen() {
                         </span>
 
                         <strong>
-                            ${currentOrder.price.toLocaleString()}
-                            сум
+                            ${formatSum(
+                                currentOrder.price
+                            )}
                         </strong>
 
                     </div>
+
 
                 </div>
 
@@ -760,6 +1136,7 @@ function showPaymentScreen() {
 
 
                 <div class="payment-methods">
+
 
                     <button
                         type="button"
@@ -802,6 +1179,7 @@ function showPaymentScreen() {
                         💰 Другой способ
                     </button>
 
+
                 </div>
 
 
@@ -821,6 +1199,7 @@ function showPaymentScreen() {
                     ✅ Я оплатил
                 </button>
 
+
             </div>
 
         </div>
@@ -828,14 +1207,18 @@ function showPaymentScreen() {
     `;
 
 
-    document.body.appendChild(screen);
+    document.body.appendChild(
+        screen
+    );
+
 
     addPaymentStyles();
+
 }
 
 
 // ========================================
-// ВЫБОР СПОСОБА ОПЛАТЫ
+// ВЫБОР ОПЛАТЫ
 // ========================================
 
 function selectPaymentMethod(
@@ -844,15 +1227,21 @@ function selectPaymentMethod(
 ) {
 
     document
-        .querySelectorAll(".payment-method")
+        .querySelectorAll(
+            ".payment-method"
+        )
         .forEach(item => {
 
-            item.classList.remove("active");
+            item.classList.remove(
+                "active"
+            );
 
         });
 
 
-    button.classList.add("active");
+    button.classList.add(
+        "active"
+    );
 
 
     selectedPaymentMethod =
@@ -879,6 +1268,7 @@ function selectPaymentMethod(
 
     }
 
+
     else if (method === "Click") {
 
         info.innerHTML =
@@ -888,12 +1278,14 @@ function selectPaymentMethod(
 
     }
 
+
     else {
 
         info.innerHTML =
             "💰 Выбран другой способ оплаты.";
 
     }
+
 }
 
 
@@ -910,23 +1302,13 @@ function confirmPayment() {
 
     if (!selectedPaymentMethod) {
 
-        tg.showPopup({
-
-            title:
-                "Выберите способ",
-
-            message:
-                "Сначала выберите способ оплаты.",
-
-            buttons: [
-                {
-                    type: "ok"
-                }
-            ]
-
-        });
+        showMessage(
+            "Выберите способ",
+            "Сначала выберите способ оплаты."
+        );
 
         return;
+
     }
 
 
@@ -938,11 +1320,11 @@ function confirmPayment() {
         "Оплата на проверке";
 
 
-    // Сохраняем последний заказ
-
     localStorage.setItem(
         "lastOrder",
-        JSON.stringify(currentOrder)
+        JSON.stringify(
+            currentOrder
+        )
     );
 
 
@@ -955,10 +1337,13 @@ function confirmPayment() {
     try {
 
         tg.sendData(
-            JSON.stringify(currentOrder)
+            JSON.stringify(
+                currentOrder
+            )
         );
 
     }
+
 
     catch (error) {
 
@@ -968,28 +1353,18 @@ function confirmPayment() {
         );
 
 
-        tg.showPopup({
-
-            title:
-                "Ошибка",
-
-            message:
-                "Не удалось отправить заказ.",
-
-            buttons: [
-                {
-                    type: "ok"
-                }
-            ]
-
-        });
+        showMessage(
+            "Ошибка",
+            "Не удалось отправить заказ."
+        );
 
     }
+
 }
 
 
 // ========================================
-// ЗАКРЫТИЕ ОПЛАТЫ
+// ЗАКРЫТЬ ОПЛАТУ
 // ========================================
 
 function closePaymentScreen() {
@@ -1005,6 +1380,689 @@ function closePaymentScreen() {
         screen.remove();
 
     }
+
+}
+
+
+// ========================================
+// ПОПОЛНЕНИЕ БАЛАНСА
+// ========================================
+
+function openDeposit() {
+
+    if (!telegramUser.id) {
+
+        showMessage(
+            "Ошибка",
+            "Telegram ID не найден."
+        );
+
+        return;
+
+    }
+
+
+    const oldScreen =
+        document.getElementById(
+            "depositScreen"
+        );
+
+
+    if (oldScreen) {
+
+        oldScreen.remove();
+
+    }
+
+
+    const screen =
+        document.createElement(
+            "div"
+        );
+
+
+    screen.id =
+        "depositScreen";
+
+
+    screen.innerHTML = `
+
+        <div class="deposit-overlay">
+
+            <div class="deposit-box">
+
+
+                <button
+                    class="deposit-close"
+                    onclick="closeDeposit()"
+                >
+                    ✕
+                </button>
+
+
+                <div class="deposit-icon">
+                    💰
+                </div>
+
+
+                <h2>
+                    Пополнение баланса
+                </h2>
+
+
+                <p class="deposit-subtitle">
+                    Минимальная сумма — 1 000 сум
+                </p>
+
+
+                <div class="deposit-current">
+
+                    <span>
+                        Текущий баланс
+                    </span>
+
+                    <strong>
+                        ${formatSum(currentBalance)}
+                    </strong>
+
+                </div>
+
+
+                <label class="deposit-label">
+                    Сумма пополнения
+                </label>
+
+
+                <input
+                    id="depositAmount"
+                    class="deposit-input"
+                    type="number"
+                    inputmode="numeric"
+                    min="1000"
+                    step="1000"
+                    placeholder="Например: 10000"
+                >
+
+
+                <div class="deposit-presets">
+
+
+                    <button
+                        type="button"
+                        onclick="setDepositAmount(5000)"
+                    >
+                        5 000
+                    </button>
+
+
+                    <button
+                        type="button"
+                        onclick="setDepositAmount(10000)"
+                    >
+                        10 000
+                    </button>
+
+
+                    <button
+                        type="button"
+                        onclick="setDepositAmount(50000)"
+                    >
+                        50 000
+                    </button>
+
+
+                    <button
+                        type="button"
+                        onclick="setDepositAmount(100000)"
+                    >
+                        100 000
+                    </button>
+
+
+                </div>
+
+
+                <div class="deposit-info">
+
+                    ℹ️ После создания заявки
+                    пополнение будет ожидать
+                    подтверждения администратора.
+
+                </div>
+
+
+                <button
+                    type="button"
+                    class="deposit-confirm"
+                    onclick="createDeposit()"
+                >
+                    ➕ Создать заявку
+                </button>
+
+
+            </div>
+
+        </div>
+
+    `;
+
+
+    document.body.appendChild(
+        screen
+    );
+
+
+    addDepositStyles();
+
+}
+
+
+// ========================================
+// УСТАНОВИТЬ СУММУ
+// ========================================
+
+function setDepositAmount(amount) {
+
+    const input =
+        document.getElementById(
+            "depositAmount"
+        );
+
+
+    if (input) {
+
+        input.value =
+            amount;
+
+    }
+
+}
+
+
+// ========================================
+// СОЗДАТЬ ЗАЯВКУ
+// ========================================
+
+async function createDeposit() {
+
+    const input =
+        document.getElementById(
+            "depositAmount"
+        );
+
+
+    if (!input) {
+        return;
+    }
+
+
+    const amount =
+        Number(
+            input.value
+        );
+
+
+    if (
+        !amount ||
+        amount < 1000
+    ) {
+
+        showMessage(
+            "Неверная сумма",
+            "Минимальная сумма пополнения — 1 000 сум."
+        );
+
+        return;
+
+    }
+
+
+    if (
+        !Number.isInteger(amount)
+    ) {
+
+        showMessage(
+            "Неверная сумма",
+            "Введите целую сумму в сумах."
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+        const registered =
+            await registerUser();
+
+
+        if (!registered) {
+
+            showMessage(
+                "Ошибка",
+                "Не удалось создать пользователя."
+            );
+
+            return;
+
+        }
+
+
+        const response =
+            await fetch(
+                `${API_URL}/deposit`,
+                {
+
+                    method: "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json"
+
+                    },
+
+                    body: JSON.stringify({
+
+                        telegram_id:
+                            telegramUser.id,
+
+                        amount:
+                            amount
+
+                    })
+
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.detail ||
+                "Не удалось создать заявку"
+            );
+
+        }
+
+
+        closeDeposit();
+
+
+        showMessage(
+
+            "Заявка создана ✅",
+
+            `Заявка #${data.deposit_id}\n\n` +
+            `Сумма: ${formatSum(data.amount)}\n\n` +
+            "Ожидайте подтверждения администратора."
+
+        );
+
+
+        await loadBalance();
+
+
+    }
+
+
+    catch (error) {
+
+        console.error(
+            "Deposit error:",
+            error
+        );
+
+
+        showMessage(
+            "Ошибка",
+            error.message ||
+            "Не удалось создать заявку."
+        );
+
+    }
+
+}
+
+
+// ========================================
+// ЗАКРЫТЬ ПОПОЛНЕНИЕ
+// ========================================
+
+function closeDeposit() {
+
+    const screen =
+        document.getElementById(
+            "depositScreen"
+        );
+
+
+    if (screen) {
+
+        screen.remove();
+
+    }
+
+}
+
+
+// ========================================
+// ИСТОРИЯ ПОПОЛНЕНИЙ
+// ========================================
+
+async function showDepositHistory() {
+
+    if (!telegramUser.id) {
+
+        showMessage(
+            "Ошибка",
+            "Telegram ID не найден."
+        );
+
+        return;
+
+    }
+
+
+    const oldScreen =
+        document.getElementById(
+            "historyScreen"
+        );
+
+
+    if (oldScreen) {
+
+        oldScreen.remove();
+
+    }
+
+
+    const screen =
+        document.createElement(
+            "div"
+        );
+
+
+    screen.id =
+        "historyScreen";
+
+
+    screen.innerHTML = `
+
+        <div class="history-overlay">
+
+            <div class="history-box">
+
+
+                <button
+                    class="history-close"
+                    onclick="closeHistory()"
+                >
+                    ✕
+                </button>
+
+
+                <div class="history-icon">
+                    📋
+                </div>
+
+
+                <h2>
+                    История пополнений
+                </h2>
+
+
+                <div
+                    id="depositHistoryList"
+                    class="deposit-history-list"
+                >
+                    Загрузка...
+                </div>
+
+
+            </div>
+
+        </div>
+
+    `;
+
+
+    document.body.appendChild(
+        screen
+    );
+
+
+    addDepositStyles();
+
+
+    await loadDepositHistory();
+
+}
+
+
+// ========================================
+// ЗАГРУЗИТЬ ИСТОРИЮ
+// ========================================
+
+async function loadDepositHistory() {
+
+    const list =
+        document.getElementById(
+            "depositHistoryList"
+        );
+
+
+    if (!list) {
+        return;
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_URL}/deposits/${telegramUser.id}`
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.detail ||
+                "Ошибка загрузки"
+            );
+
+        }
+
+
+        if (
+            !data.deposits ||
+            data.deposits.length === 0
+        ) {
+
+            list.innerHTML = `
+
+                <div class="empty-history">
+
+                    📭
+
+                    <p>
+                        Пополнений пока нет
+                    </p>
+
+                </div>
+
+            `;
+
+            return;
+
+        }
+
+
+        list.innerHTML = "";
+
+
+        data.deposits.forEach(
+            deposit => {
+
+                const item =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                item.className =
+                    "deposit-history-item";
+
+
+                let statusText =
+                    "Ожидает";
+
+                let statusClass =
+                    "pending";
+
+
+                if (
+                    deposit.status ===
+                    "confirmed"
+                ) {
+
+                    statusText =
+                        "Подтверждено";
+
+                    statusClass =
+                        "confirmed";
+
+                }
+
+
+                if (
+                    deposit.status ===
+                    "rejected"
+                ) {
+
+                    statusText =
+                        "Отклонено";
+
+                    statusClass =
+                        "rejected";
+
+                }
+
+
+                const date =
+                    new Date(
+                        deposit.created_at
+                    );
+
+
+                const dateText =
+                    date.toLocaleString(
+                        "ru-RU"
+                    );
+
+
+                item.innerHTML = `
+
+                    <div>
+
+                        <strong>
+                            +${formatSum(
+                                deposit.amount
+                            )}
+                        </strong>
+
+                        <small>
+                            Заявка #${deposit.id}
+                        </small>
+
+                    </div>
+
+
+                    <div class="history-right">
+
+                        <span
+                            class="
+                                deposit-status
+                                ${statusClass}
+                            "
+                        >
+                            ${statusText}
+                        </span>
+
+                        <small>
+                            ${dateText}
+                        </small>
+
+                    </div>
+
+                `;
+
+
+                list.appendChild(
+                    item
+                );
+
+            }
+        );
+
+    }
+
+
+    catch (error) {
+
+        console.error(
+            "History error:",
+            error
+        );
+
+
+        list.innerHTML = `
+
+            <div class="empty-history">
+
+                ❌
+
+                <p>
+                    Не удалось загрузить историю
+                </p>
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+// ========================================
+// ЗАКРЫТЬ ИСТОРИЮ
+// ========================================
+
+function closeHistory() {
+
+    const screen =
+        document.getElementById(
+            "historyScreen"
+        );
+
+
+    if (screen) {
+
+        screen.remove();
+
+    }
+
 }
 
 
@@ -1022,38 +2080,28 @@ function showOrders() {
 
     if (!savedOrder) {
 
-        tg.showPopup({
-
-            title:
-                "Мои заказы",
-
-            message:
-                "У вас пока нет заказов.",
-
-            buttons: [
-                {
-                    type: "ok"
-                }
-            ]
-
-        });
+        showMessage(
+            "Мои заказы",
+            "У вас пока нет заказов."
+        );
 
         return;
+
     }
 
 
     try {
 
         const order =
-            JSON.parse(savedOrder);
+            JSON.parse(
+                savedOrder
+            );
 
 
-        tg.showPopup({
+        showMessage(
 
-            title:
-                "Мой заказ",
+            "Мой заказ",
 
-            message:
 `🆔 #${order.order_number}
 
 🎮 ${order.game}
@@ -1062,44 +2110,35 @@ function showOrders() {
 
 👤 ID: ${order.player_id}
 
-💰 ${order.price.toLocaleString()} сум
+💰 ${formatSum(order.price)}
 
-💳 Оплата: ${order.payment_method || "—"}
+💳 Оплата: ${
+    order.payment_method || "—"
+}
 
-📦 Статус: ${order.status}`,
+📦 Статус: ${
+    order.status
+}`
 
-            buttons: [
-                {
-                    type: "ok"
-                }
-            ]
-
-        });
+        );
 
     }
+
 
     catch (error) {
 
-        console.error(error);
+        console.error(
+            error
+        );
 
 
-        tg.showPopup({
-
-            title:
-                "Ошибка",
-
-            message:
-                "Не удалось загрузить заказ.",
-
-            buttons: [
-                {
-                    type: "ok"
-                }
-            ]
-
-        });
+        showMessage(
+            "Ошибка",
+            "Не удалось загрузить заказ."
+        );
 
     }
+
 }
 
 
@@ -1109,35 +2148,28 @@ function showOrders() {
 
 function showHelp() {
 
-    tg.showPopup({
+    showMessage(
 
-        title:
-            "YORDAM",
+        "YORDAM",
 
-        message:
-            "Если у вас возникли вопросы " +
-            "или проблемы с заказом, " +
-            "обратитесь в поддержку BuyPay.",
+        "Если у вас возникли вопросы " +
+        "или проблемы с заказом, " +
+        "обратитесь в поддержку BuyPay."
 
-        buttons: [
-            {
-                type: "ok"
-            }
-        ]
+    );
 
-    });
 }
 
 
 // ========================================
-// СТИЛИ ОПЛАТЫ
+// СТИЛИ БАЛАНСА
 // ========================================
 
-function addPaymentStyles() {
+function addBalanceStyles() {
 
     if (
         document.getElementById(
-            "paymentStyles"
+            "balanceStyles"
         )
     ) {
         return;
@@ -1145,39 +2177,199 @@ function addPaymentStyles() {
 
 
     const style =
-        document.createElement("style");
+        document.createElement(
+            "style"
+        );
 
 
     style.id =
-        "paymentStyles";
+        "balanceStyles";
 
 
     style.textContent = `
 
-        #paymentScreen {
-            position: fixed;
-            inset: 0;
-            z-index: 9999;
+        .balance-card {
 
-            animation:
-                paymentAppear .35s ease;
+            margin-top: 20px;
+
+            padding: 18px;
+
+            border-radius: 22px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(71,124,255,.18),
+                    rgba(138,82,255,.14)
+                );
+
+            border:
+                1px solid
+                rgba(255,255,255,.12);
+
+            box-shadow:
+                0 15px 40px
+                rgba(0,0,0,.18);
+
+            backdrop-filter:
+                blur(10px);
+
         }
 
 
-        .payment-overlay {
+        .balance-top {
 
-            width: 100%;
-            height: 100%;
+            display: flex;
+
+            justify-content:
+                space-between;
+
+            align-items:
+                center;
+
+            opacity: .75;
+
+            font-size: 14px;
+
+        }
+
+
+        .balance-refresh {
+
+            width: 32px;
+
+            height: 32px;
+
+            border: none;
+
+            border-radius: 50%;
 
             background:
-                rgba(0, 0, 0, .72);
+                rgba(255,255,255,.08);
+
+            color: white;
+
+            font-size: 20px;
+
+            cursor: pointer;
+
+        }
+
+
+        .balance-amount {
+
+            margin-top: 5px;
+
+            font-size: 28px;
+
+            font-weight: 800;
+
+        }
+
+
+        .deposit-button {
+
+            width: 100%;
+
+            margin-top: 14px;
+
+            padding: 12px;
+
+            border: none;
+
+            border-radius: 13px;
+
+            background:
+                linear-gradient(
+                    110deg,
+                    #477cff,
+                    #8a52ff
+                );
+
+            color: white;
+
+            font-weight: 700;
+
+            cursor: pointer;
+
+            transition: .25s;
+
+        }
+
+
+        .deposit-button:active {
+
+            transform:
+                scale(.97);
+
+        }
+
+    `;
+
+
+    document.head.appendChild(
+        style
+    );
+
+}
+
+
+// ========================================
+// СТИЛИ ПОПОЛНЕНИЯ
+// ========================================
+
+function addDepositStyles() {
+
+    if (
+        document.getElementById(
+            "depositStyles"
+        )
+    ) {
+        return;
+    }
+
+
+    const style =
+        document.createElement(
+            "style"
+        );
+
+
+    style.id =
+        "depositStyles";
+
+
+    style.textContent = `
+
+        #depositScreen,
+        #historyScreen {
+
+            position: fixed;
+
+            inset: 0;
+
+            z-index: 9999;
+
+        }
+
+
+        .deposit-overlay,
+        .history-overlay {
+
+            width: 100%;
+
+            height: 100%;
+
+            padding: 18px;
 
             display: flex;
 
             align-items: center;
+
             justify-content: center;
 
-            padding: 18px;
+            background:
+                rgba(0,0,0,.72);
 
             backdrop-filter:
                 blur(8px);
@@ -1185,11 +2377,13 @@ function addPaymentStyles() {
         }
 
 
-        .payment-box {
+        .deposit-box,
+        .history-box {
 
             position: relative;
 
             width: 100%;
+
             max-width: 430px;
 
             max-height: 90vh;
@@ -1216,14 +2410,44 @@ function addPaymentStyles() {
                 rgba(0,0,0,.55);
 
             animation:
-                paymentBoxAppear .45s ease;
+                depositBoxAppear
+                .35s ease;
 
         }
 
 
-        .payment-icon {
+        .deposit-close,
+        .history-close {
+
+            position: absolute;
+
+            top: 13px;
+
+            right: 13px;
+
+            width: 38px;
+
+            height: 38px;
+
+            border: none;
+
+            border-radius: 50%;
+
+            background:
+                rgba(255,255,255,.08);
+
+            color: white;
+
+            cursor: pointer;
+
+        }
+
+
+        .deposit-icon,
+        .history-icon {
 
             width: 65px;
+
             height: 65px;
 
             margin:
@@ -1234,6 +2458,7 @@ function addPaymentStyles() {
             display: flex;
 
             align-items: center;
+
             justify-content: center;
 
             font-size: 32px;
@@ -1245,9 +2470,466 @@ function addPaymentStyles() {
                     #8a52ff
                 );
 
+        }
+
+
+        .deposit-box h2,
+        .history-box h2 {
+
+            text-align: center;
+
+            margin:
+                5px 0;
+
+        }
+
+
+        .deposit-subtitle {
+
+            text-align: center;
+
+            opacity: .55;
+
+            font-size: 13px;
+
+        }
+
+
+        .deposit-current {
+
+            display: flex;
+
+            justify-content:
+                space-between;
+
+            align-items: center;
+
+            margin-top: 20px;
+
+            padding: 14px;
+
+            border-radius: 15px;
+
+            background:
+                rgba(255,255,255,.05);
+
+        }
+
+
+        .deposit-current span {
+
+            opacity: .55;
+
+        }
+
+
+        .deposit-current strong {
+
+            font-size: 17px;
+
+        }
+
+
+        .deposit-label {
+
+            display: block;
+
+            margin-top: 18px;
+
+            margin-bottom: 7px;
+
+            opacity: .7;
+
+            font-size: 13px;
+
+        }
+
+
+        .deposit-input {
+
+            box-sizing: border-box;
+
+            width: 100%;
+
+            padding: 15px;
+
+            border-radius: 14px;
+
+            border:
+                1px solid
+                rgba(255,255,255,.12);
+
+            outline: none;
+
+            background:
+                rgba(255,255,255,.06);
+
+            color: white;
+
+            font-size: 17px;
+
+        }
+
+
+        .deposit-presets {
+
+            display: grid;
+
+            grid-template-columns:
+                1fr 1fr;
+
+            gap: 9px;
+
+            margin-top: 12px;
+
+        }
+
+
+        .deposit-presets button {
+
+            padding: 11px;
+
+            border: none;
+
+            border-radius: 12px;
+
+            background:
+                rgba(255,255,255,.07);
+
+            color: white;
+
+            cursor: pointer;
+
+        }
+
+
+        .deposit-info {
+
+            margin-top: 15px;
+
+            padding: 13px;
+
+            border-radius: 14px;
+
+            background:
+                rgba(255,255,255,.05);
+
+            font-size: 13px;
+
+            line-height: 1.5;
+
+        }
+
+
+        .deposit-confirm {
+
+            width: 100%;
+
+            margin-top: 17px;
+
+            padding: 15px;
+
+            border: none;
+
+            border-radius: 14px;
+
+            background:
+                linear-gradient(
+                    110deg,
+                    #477cff,
+                    #8a52ff
+                );
+
+            color: white;
+
+            font-size: 16px;
+
+            font-weight: 700;
+
+            cursor: pointer;
+
+        }
+
+
+        .deposit-history-list {
+
+            margin-top: 20px;
+
+        }
+
+
+        .deposit-history-item {
+
+            display: flex;
+
+            justify-content:
+                space-between;
+
+            gap: 12px;
+
+            padding: 13px;
+
+            margin-bottom: 9px;
+
+            border-radius: 14px;
+
+            background:
+                rgba(255,255,255,.05);
+
+        }
+
+
+        .deposit-history-item > div {
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 4px;
+
+        }
+
+
+        .deposit-history-item strong {
+
+            font-size: 15px;
+
+        }
+
+
+        .deposit-history-item small {
+
+            opacity: .45;
+
+            font-size: 11px;
+
+        }
+
+
+        .history-right {
+
+            align-items: flex-end;
+
+            text-align: right;
+
+        }
+
+
+        .deposit-status {
+
+            padding: 4px 8px;
+
+            border-radius: 8px;
+
+            font-size: 11px;
+
+        }
+
+
+        .deposit-status.pending {
+
+            background:
+                rgba(255,180,0,.15);
+
+        }
+
+
+        .deposit-status.confirmed {
+
+            background:
+                rgba(0,200,100,.15);
+
+        }
+
+
+        .deposit-status.rejected {
+
+            background:
+                rgba(255,60,60,.15);
+
+        }
+
+
+        .empty-history {
+
+            text-align: center;
+
+            padding: 35px 10px;
+
+            opacity: .55;
+
+        }
+
+
+        .empty-history p {
+
+            margin-top: 8px;
+
+        }
+
+
+        @keyframes depositBoxAppear {
+
+            from {
+
+                opacity: 0;
+
+                transform:
+                    translateY(30px)
+                    scale(.95);
+
+            }
+
+            to {
+
+                opacity: 1;
+
+                transform:
+                    translateY(0)
+                    scale(1);
+
+            }
+
+        }
+
+    `;
+
+
+    document.head.appendChild(
+        style
+    );
+
+}
+
+
+// ========================================
+// СТИЛИ ОПЛАТЫ
+// ========================================
+
+function addPaymentStyles() {
+
+    if (
+        document.getElementById(
+            "paymentStyles"
+        )
+    ) {
+        return;
+    }
+
+
+    const style =
+        document.createElement(
+            "style"
+        );
+
+
+    style.id =
+        "paymentStyles";
+
+
+    style.textContent = `
+
+        #paymentScreen {
+
+            position: fixed;
+
+            inset: 0;
+
+            z-index: 9999;
+
+            animation:
+                paymentAppear
+                .35s ease;
+
+        }
+
+
+        .payment-overlay {
+
+            width: 100%;
+
+            height: 100%;
+
+            background:
+                rgba(0,0,0,.72);
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            padding: 18px;
+
+            backdrop-filter:
+                blur(8px);
+
+        }
+
+
+        .payment-box {
+
+            position: relative;
+
+            width: 100%;
+
+            max-width: 430px;
+
+            max-height: 90vh;
+
+            overflow-y: auto;
+
+            padding: 25px;
+
+            border-radius: 26px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    #151a32,
+                    #0c1020
+                );
+
+            border:
+                1px solid
+                rgba(255,255,255,.12);
+
             box-shadow:
-                0 10px 35px
-                rgba(80,100,255,.3);
+                0 25px 80px
+                rgba(0,0,0,.55);
+
+            animation:
+                paymentBoxAppear
+                .45s ease;
+
+        }
+
+
+        .payment-icon {
+
+            width: 65px;
+
+            height: 65px;
+
+            margin:
+                0 auto 12px;
+
+            border-radius: 20px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            font-size: 32px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #477cff,
+                    #8a52ff
+                );
 
         }
 
@@ -1278,9 +2960,11 @@ function addPaymentStyles() {
             position: absolute;
 
             top: 13px;
+
             right: 13px;
 
             width: 38px;
+
             height: 38px;
 
             border: none;
@@ -1293,19 +2977,6 @@ function addPaymentStyles() {
             color: white;
 
             cursor: pointer;
-
-            transition: .2s;
-
-        }
-
-
-        .payment-close:hover {
-
-            transform:
-                rotate(90deg);
-
-            background:
-                rgba(255,255,255,.15);
 
         }
 
@@ -1420,9 +3091,6 @@ function addPaymentStyles() {
             transform:
                 translateX(4px);
 
-            background:
-                rgba(255,255,255,.09);
-
         }
 
 
@@ -1432,10 +3100,6 @@ function addPaymentStyles() {
                 #6e9cff;
 
             background:
-                rgba(70,120,255,.15);
-
-            box-shadow:
-                0 0 20px
                 rgba(70,120,255,.15);
 
         }
@@ -1479,7 +3143,8 @@ function addPaymentStyles() {
                     #477cff
                 );
 
-            background-size: 200%;
+            background-size:
+                200%;
 
             color: white;
 
@@ -1492,16 +3157,6 @@ function addPaymentStyles() {
             animation:
                 paymentGradient
                 4s linear infinite;
-
-            transition: .2s;
-
-        }
-
-
-        .payment-confirm:hover {
-
-            transform:
-                translateY(-3px);
 
         }
 
@@ -1522,19 +3177,23 @@ function addPaymentStyles() {
         @keyframes paymentBoxAppear {
 
             from {
+
                 opacity: 0;
 
                 transform:
                     translateY(35px)
                     scale(.94);
+
             }
 
             to {
+
                 opacity: 1;
 
                 transform:
                     translateY(0)
                     scale(1);
+
             }
 
         }
@@ -1555,14 +3214,26 @@ function addPaymentStyles() {
     `;
 
 
-    document.head.appendChild(style);
+    document.head.appendChild(
+        style
+    );
+
 }
 
 
 // ========================================
-// ГОТОВО
+// ЗАПУСК
 // ========================================
 
+addBalanceStyles();
+
+
+// Загружаем баланс
+// после запуска Web App
+
+loadBalance();
+
+
 console.log(
-    "🔥 BuyPay Animated Web App запущен!"
+    "🔥 BuyPay Web App запущен!"
 );

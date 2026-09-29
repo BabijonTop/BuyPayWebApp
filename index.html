@@ -12,7 +12,7 @@
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-    <link rel="stylesheet" href="style.css?v=20">
+    <link rel="stylesheet" href="style.css?v=21">
 </head>
 
 <body>
@@ -22,6 +22,7 @@
     <!-- HEADER -->
 
     <header class="hero">
+
         <div class="hero-glow"></div>
 
         <div class="logo">BuyPay</div>
@@ -31,6 +32,40 @@
         <p id="welcomeText">
             Xush kelibsiz!
         </p>
+
+        <!-- BALANCE -->
+
+        <div class="balance-card">
+
+            <div class="balance-top">
+                <span>💰 Баланс</span>
+
+                <button
+                    type="button"
+                    class="balance-refresh"
+                    onclick="loadBalance()"
+                >
+                    ↻
+                </button>
+            </div>
+
+            <div
+                id="balanceAmount"
+                class="balance-amount"
+            >
+                0 сум
+            </div>
+
+            <button
+                type="button"
+                class="deposit-button"
+                onclick="openDeposit()"
+            >
+                ➕ Пополнить баланс
+            </button>
+
+        </div>
+
     </header>
 
 
@@ -39,12 +74,17 @@
     <section class="step-section active-step">
 
         <div class="step-title">
+
             <span class="step-number">1</span>
 
             <div>
                 <h2>Выберите игру</h2>
-                <p>Выберите игру для покупки</p>
+
+                <p>
+                    Выберите игру для покупки
+                </p>
             </div>
+
         </div>
 
 
@@ -54,14 +94,19 @@
                 class="game-card"
                 onclick="selectGame('PUBG Mobile')"
             >
+
                 <div class="game-icon">🎯</div>
 
                 <div class="game-info">
+
                     <strong>PUBG Mobile</strong>
+
                     <span>UC</span>
+
                 </div>
 
                 <div class="arrow">›</div>
+
             </button>
 
 
@@ -69,14 +114,19 @@
                 class="game-card"
                 onclick="selectGame('Mobile Legends')"
             >
+
                 <div class="game-icon">⚔️</div>
 
                 <div class="game-info">
+
                     <strong>Mobile Legends</strong>
+
                     <span>Diamonds</span>
+
                 </div>
 
                 <div class="arrow">›</div>
+
             </button>
 
 
@@ -84,14 +134,19 @@
                 class="game-card"
                 onclick="selectGame('Free Fire')"
             >
+
                 <div class="game-icon">🔥</div>
 
                 <div class="game-info">
+
                     <strong>Free Fire</strong>
+
                     <span>Diamonds</span>
+
                 </div>
 
                 <div class="arrow">›</div>
+
             </button>
 
 
@@ -99,14 +154,19 @@
                 class="game-card"
                 onclick="selectGame('Brawl Stars')"
             >
+
                 <div class="game-icon">⭐</div>
 
                 <div class="game-info">
+
                     <strong>Brawl Stars</strong>
+
                     <span>Gems</span>
+
                 </div>
 
                 <div class="arrow">›</div>
+
             </button>
 
         </div>
@@ -126,11 +186,13 @@
             <span class="step-number">2</span>
 
             <div>
+
                 <h2>Выберите валюту</h2>
 
                 <p id="selectedGame">
                     Сначала выберите игру
                 </p>
+
             </div>
 
         </div>
@@ -153,11 +215,13 @@
             <span class="step-number">3</span>
 
             <div>
+
                 <h2>ID игрока</h2>
 
                 <p>
                     Введите ID аккаунта
                 </p>
+
             </div>
 
         </div>
@@ -194,11 +258,13 @@
             <span class="step-number">4</span>
 
             <div>
+
                 <h2>Ваш заказ</h2>
 
                 <p>
                     Проверьте данные перед покупкой
                 </p>
+
             </div>
 
         </div>
@@ -207,29 +273,35 @@
         <div class="order-card">
 
             <div class="order-row">
+
                 <span>🎮 Игра</span>
 
                 <strong id="summaryGame">
                     —
                 </strong>
+
             </div>
 
 
             <div class="order-row">
+
                 <span>💎 Пакет</span>
 
                 <strong id="summaryPackage">
                     —
                 </strong>
+
             </div>
 
 
             <div class="order-row">
+
                 <span>🆔 ID игрока</span>
 
                 <strong id="summaryPlayer">
                     —
                 </strong>
+
             </div>
 
 
@@ -264,19 +336,41 @@
 <nav class="bottom-nav">
 
     <button onclick="showOrders()">
+
         📦
-        <span>Мои заказы</span>
+
+        <span>
+            Мои заказы
+        </span>
+
     </button>
 
+
+    <button onclick="showDepositHistory()">
+
+        💰
+
+        <span>
+            Баланс
+        </span>
+
+    </button>
+
+
     <button onclick="showHelp()">
+
         ❓
-        <span>Помощь</span>
+
+        <span>
+            Помощь
+        </span>
+
     </button>
 
 </nav>
 
 
-<script src="script.js?v=20"></script>
+<script src="script.js?v=21"></script>
 
 </body>
 </html>
