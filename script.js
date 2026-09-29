@@ -1,121 +1,225 @@
+// ========================================
+// TELEGRAM WEB APP
+// ========================================
+
 const tg = window.Telegram.WebApp;
 
 tg.ready();
 tg.expand();
 
-let selectedGame = "";
-let selectedPackage = null;
+
+// ========================================
+// ПОЛЬЗОВАТЕЛЬ TELEGRAM
+// ========================================
+
+const telegramUser = tg.initDataUnsafe?.user || {};
+
+const welcomeText = document.getElementById("welcomeText");
+
+if (welcomeText && telegramUser.first_name) {
+    welcomeText.textContent =
+        `Xush kelibsiz, ${telegramUser.first_name}!`;
+}
 
 
-// ===============================
-// ПАКЕТЫ ИГР
-// ===============================
+// ========================================
+// ДАННЫЕ ИГР
+// ========================================
 
 const games = {
 
     "PUBG Mobile": [
-        { amount: "60 UC", price: 12000 },
-        { amount: "325 UC", price: 55000 },
-        { amount: "660 UC", price: 105000 },
-        { amount: "1800 UC", price: 270000 }
+        {
+            amount: "60 UC",
+            price: 12000
+        },
+        {
+            amount: "325 UC",
+            price: 55000
+        },
+        {
+            amount: "660 UC",
+            price: 105000
+        },
+        {
+            amount: "1800 UC",
+            price: 270000
+        }
     ],
+
 
     "Mobile Legends": [
-        { amount: "86 Diamonds", price: 15000 },
-        { amount: "172 Diamonds", price: 30000 },
-        { amount: "257 Diamonds", price: 45000 },
-        { amount: "706 Diamonds", price: 80000 }
+        {
+            amount: "86 Diamonds",
+            price: 15000
+        },
+        {
+            amount: "172 Diamonds",
+            price: 30000
+        },
+        {
+            amount: "257 Diamonds",
+            price: 45000
+        },
+        {
+            amount: "706 Diamonds",
+            price: 80000
+        }
     ],
+
 
     "Free Fire": [
-        { amount: "100 Diamonds", price: 15000 },
-        { amount: "310 Diamonds", price: 40000 },
-        { amount: "520 Diamonds", price: 65000 },
-        { amount: "1060 Diamonds", price: 120000 }
+        {
+            amount: "100 Diamonds",
+            price: 15000
+        },
+        {
+            amount: "310 Diamonds",
+            price: 40000
+        },
+        {
+            amount: "520 Diamonds",
+            price: 65000
+        },
+        {
+            amount: "1060 Diamonds",
+            price: 120000
+        }
     ],
 
+
     "Brawl Stars": [
-        { amount: "30 Gems", price: 15000 },
-        { amount: "80 Gems", price: 35000 },
-        { amount: "170 Gems", price: 70000 },
-        { amount: "360 Gems", price: 140000 }
+        {
+            amount: "30 Gems",
+            price: 15000
+        },
+        {
+            amount: "80 Gems",
+            price: 35000
+        },
+        {
+            amount: "170 Gems",
+            price: 70000
+        },
+        {
+            amount: "360 Gems",
+            price: 140000
+        }
     ]
 
 };
 
 
-// ===============================
-// ПРИВЕТСТВИЕ
-// ===============================
+// ========================================
+// ПЕРЕМЕННЫЕ
+// ========================================
 
-const user = tg.initDataUnsafe?.user;
-
-if (user) {
-
-    const welcome = document.getElementById("welcomeText");
-
-    if (welcome) {
-        welcome.textContent = `Xush kelibsiz, ${user.first_name || ""}!`;
-    }
-
-}
+let selectedGame = null;
+let selectedPackage = null;
 
 
-// ===============================
+// ========================================
 // ВЫБОР ИГРЫ
-// ===============================
+// ========================================
 
-function selectGame(game) {
+function selectGame(gameName) {
 
-    selectedGame = game;
+    console.log("Выбрана игра:", gameName);
+
+    selectedGame = gameName;
+
     selectedPackage = null;
 
-    console.log("Выбрана игра:", game);
 
+    // ----------------------------
+    // Выделяем игру
+    // ----------------------------
 
-    // Убираем выделение со всех игр
+    const gameCards =
+        document.querySelectorAll(".game-card");
 
-    document.querySelectorAll(".game-card").forEach(card => {
+    gameCards.forEach(card => {
+
         card.classList.remove("active");
-    });
 
+        const text =
+            card.innerText.trim();
 
-    // Выделяем нажатую кнопку
-
-    const cards = document.querySelectorAll(".game-card");
-
-    cards.forEach(card => {
-
-        if (card.innerText.includes(game)) {
+        if (text.includes(gameName)) {
             card.classList.add("active");
         }
 
     });
 
 
-    // Показываем выбранную игру
+    // ----------------------------
+    // Показываем название игры
+    // ----------------------------
 
     const selectedGameElement =
         document.getElementById("selectedGame");
 
     if (selectedGameElement) {
-        selectedGameElement.textContent = game;
+
+        selectedGameElement.textContent =
+            gameName;
+
     }
 
 
-    // Обновляем пакеты
+    // ----------------------------
+    // Обновляем список пакетов
+    // ----------------------------
+
+    renderPackages(gameName);
+
+
+    // ----------------------------
+    // Обновляем итог
+    // ----------------------------
+
+    updateSummary();
+
+}
+
+
+// ========================================
+// СОЗДАНИЕ ПАКЕТОВ
+// ========================================
+
+function renderPackages(gameName) {
 
     const packagesContainer =
-        document.querySelector(".packages");
+        document.getElementById("packages");
+
+
+    if (!packagesContainer) {
+        return;
+    }
+
 
     packagesContainer.innerHTML = "";
 
 
-    games[game].forEach((item, index) => {
+    const packages =
+        games[gameName];
 
-        const button = document.createElement("button");
+
+    if (!packages) {
+        return;
+    }
+
+
+    packages.forEach((item, index) => {
+
+        const button =
+            document.createElement("button");
+
+
+        button.type = "button";
 
         button.className = "package";
+
 
         button.innerHTML = `
             <strong>${item.amount}</strong>
@@ -123,42 +227,68 @@ function selectGame(game) {
         `;
 
 
-        button.onclick = function () {
-            selectPackage(this, item.amount, item.price);
-        };
+        button.addEventListener(
+            "click",
+            function () {
+
+                selectPackage(
+                    button,
+                    item.amount,
+                    item.price
+                );
+
+            }
+        );
 
 
         packagesContainer.appendChild(button);
 
     });
 
-
-    updateSummary();
-
 }
 
 
-// ===============================
+// ========================================
 // ВЫБОР ПАКЕТА
-// ===============================
+// ========================================
 
-function selectPackage(button, amount, price) {
+function selectPackage(
+    button,
+    amount,
+    price
+) {
 
-    document.querySelectorAll(".package").forEach(item => {
+    console.log(
+        "Выбран пакет:",
+        amount,
+        price
+    );
+
+
+    // Убираем старое выделение
+
+    const packages =
+        document.querySelectorAll(".package");
+
+    packages.forEach(item => {
         item.classList.remove("active");
     });
 
 
+    // Выделяем выбранный
+
     button.classList.add("active");
 
 
+    // Сохраняем
+
     selectedPackage = {
+
         amount: amount,
+
         price: price
+
     };
-
-
-    console.log("Выбран пакет:", selectedPackage);
 
 
     updateSummary();
@@ -166,9 +296,9 @@ function selectPackage(button, amount, price) {
 }
 
 
-// ===============================
+// ========================================
 // ОБНОВЛЕНИЕ ИТОГА
-// ===============================
+// ========================================
 
 function updateSummary() {
 
@@ -183,152 +313,192 @@ function updateSummary() {
 
 
     if (summaryGame) {
+
         summaryGame.textContent =
             selectedGame || "—";
+
     }
 
 
     if (summaryPackage) {
+
         summaryPackage.textContent =
             selectedPackage
                 ? selectedPackage.amount
                 : "—";
+
     }
 
 
     if (summaryPrice) {
+
         summaryPrice.textContent =
             selectedPackage
                 ? selectedPackage.price.toLocaleString() + " сум"
                 : "0 сум";
+
     }
 
 }
 
 
-// ===============================
+// ========================================
 // УНИКАЛЬНЫЙ НОМЕР ЗАКАЗА
-// ===============================
+// ========================================
 
 function generateOrderNumber() {
 
-    const number = Math.floor(
-        100000 + Math.random() * 900000
-    );
+    const random =
+        Math.floor(
+            100000 + Math.random() * 900000
+        );
 
-    return `BP-${number}`;
+    return `BP-${random}`;
 
 }
 
 
-// ===============================
+// ========================================
 // СОЗДАНИЕ ЗАКАЗА
-// ===============================
+// ========================================
 
 function createOrder() {
 
+    // ----------------------------
     // Проверяем игру
+    // ----------------------------
 
     if (!selectedGame) {
 
         tg.showPopup({
+
             title: "Выберите игру",
-            message: "Сначала выберите игру.",
+
+            message:
+                "Сначала выберите игру.",
+
             buttons: [
                 {
                     type: "ok"
                 }
             ]
+
         });
 
         return;
     }
 
 
+    // ----------------------------
     // Проверяем пакет
+    // ----------------------------
 
     if (!selectedPackage) {
 
         tg.showPopup({
+
             title: "Выберите пакет",
-            message: "Сначала выберите пакет игровой валюты.",
+
+            message:
+                "Сначала выберите пакет игровой валюты.",
+
             buttons: [
                 {
                     type: "ok"
                 }
             ]
+
         });
 
         return;
     }
 
 
-    // Получаем ID игрока
+    // ----------------------------
+    // Получаем ID
+    // ----------------------------
 
     const playerInput =
         document.getElementById("playerId");
 
 
     const playerId =
-        playerInput.value.trim();
+        playerInput
+            ? playerInput.value.trim()
+            : "";
 
 
     if (!playerId) {
 
         tg.showPopup({
-            title: "Введите ID",
-            message: "Введите ID игрока.",
+
+            title: "Введите ID игрока",
+
+            message:
+                "Пожалуйста, введите ID игрока.",
+
             buttons: [
                 {
                     type: "ok"
                 }
             ]
+
         });
 
         return;
     }
 
 
-    // Создаём номер
+    // ----------------------------
+    // Номер заказа
+    // ----------------------------
 
     const orderNumber =
         generateOrderNumber();
 
 
-    // Данные Telegram
-
-    const telegramUser =
-        tg.initDataUnsafe?.user || {};
-
-
+    // ----------------------------
     // Создаём заказ
+    // ----------------------------
 
     const order = {
 
-        order_number: orderNumber,
+        order_number:
+            orderNumber,
 
-        game: selectedGame,
+        game:
+            selectedGame,
 
-        package: selectedPackage.amount,
+        package:
+            selectedPackage.amount,
 
-        price: selectedPackage.price,
+        price:
+            selectedPackage.price,
 
-        player_id: playerId,
+        player_id:
+            playerId,
 
-        telegram_id: telegramUser.id || "",
+        telegram_id:
+            telegramUser.id || "",
 
-        username: telegramUser.username || "",
+        username:
+            telegramUser.username || "",
 
-        first_name: telegramUser.first_name || "",
+        first_name:
+            telegramUser.first_name || "",
 
-        status: "Новый",
+        status:
+            "Новый",
 
-        created_at: new Date().toISOString()
+        created_at:
+            new Date().toISOString()
 
     };
 
 
-    // Сохраняем последний заказ
+    // ----------------------------
+    // Сохраняем заказ
+    // ----------------------------
 
     localStorage.setItem(
         "lastOrder",
@@ -336,7 +506,9 @@ function createOrder() {
     );
 
 
-    // Красивое сообщение
+    // ----------------------------
+    // Сообщение
+    // ----------------------------
 
     const message =
 
@@ -345,15 +517,21 @@ function createOrder() {
 🆔 Номер заказа: #${orderNumber}
 
 🎮 Игра: ${selectedGame}
+
 💎 Пакет: ${selectedPackage.amount}
+
 👤 ID игрока: ${playerId}
 
 💰 Сумма: ${selectedPackage.price.toLocaleString()} сум
 
 📦 Статус: Новый
 
-Спасибо за заказ в BuyPay! 🚀`;
+🚀 Спасибо за заказ в BuyPay!`;
 
+
+    // ----------------------------
+    // Показываем заказ
+    // ----------------------------
 
     tg.showPopup({
 
@@ -363,32 +541,45 @@ function createOrder() {
 
         buttons: [
             {
-                id: "send",
+                id: "ok",
                 type: "default",
                 text: "Готово"
             }
         ]
 
-    }, function(buttonId) {
-
-        if (buttonId === "send") {
-
-            // Отправляем заказ Telegram-боту
-
-            tg.sendData(
-                JSON.stringify(order)
-            );
-
-        }
-
     });
+
+
+    // ----------------------------
+    // Отправляем боту
+    // ----------------------------
+
+    try {
+
+        tg.sendData(
+            JSON.stringify(order)
+        );
+
+        console.log(
+            "Заказ отправлен:",
+            order
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Ошибка отправки:",
+            error
+        );
+
+    }
 
 }
 
 
-// ===============================
+// ========================================
 // МОИ ЗАКАЗЫ
-// ===============================
+// ========================================
 
 function showOrders() {
 
@@ -430,6 +621,7 @@ function showOrders() {
 `🆔 #${order.order_number}
 
 🎮 ${order.game}
+
 💎 ${order.package}
 
 👤 ID: ${order.player_id}
@@ -449,9 +641,9 @@ function showOrders() {
 }
 
 
-// ===============================
+// ========================================
 // ПОМОЩЬ
-// ===============================
+// ========================================
 
 function showHelp() {
 
@@ -471,3 +663,10 @@ function showHelp() {
     });
 
 }
+
+
+// ========================================
+// ГОТОВО
+// ========================================
+
+console.log("BuyPay Web App запущен!");
