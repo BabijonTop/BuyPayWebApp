@@ -330,7 +330,7 @@ function createOrder() {
 
     // Проверяем Telegram
 
-    if (tg && tg.initData) {
+    if (tg) {
 
         tg.showPopup({
 
@@ -387,7 +387,7 @@ function createOrder() {
 
 function showMessage(message) {
 
-    if (tg && tg.initData) {
+    if (tg) {
 
         tg.showAlert(message);
 
