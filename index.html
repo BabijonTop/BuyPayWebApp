@@ -1,285 +1,282 @@
 <!DOCTYPE html>
 <html lang="ru">
-
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    >
 
     <title>BuyPay</title>
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=20">
 </head>
 
 <body>
 
-<div class="app">
+<div class="container">
 
     <!-- HEADER -->
-    <header class="header">
 
-        <div>
-            <div class="logo">
-                Buy<span>Pay</span>
-            </div>
+    <header class="hero">
+        <div class="hero-glow"></div>
 
-            <p class="welcome" id="welcomeText">
-                Xush kelibsiz!
-            </p>
-        </div>
+        <div class="logo">BuyPay</div>
 
-        <div class="profile" id="profile">
-            👤
-        </div>
+        <h1>Игровая валюта</h1>
 
+        <p id="welcomeText">
+            Xush kelibsiz!
+        </p>
     </header>
 
 
-    <main>
+    <!-- STEP 1 -->
 
-        <!-- HERO -->
-        <section class="hero">
+    <section class="step-section active-step">
+
+        <div class="step-title">
+            <span class="step-number">1</span>
 
             <div>
-                <p class="hero-small">
-                    BUY GAME CURRENCY
-                </p>
-
-                <h1>
-                    Игровая валюта<br>
-                    быстро и удобно
-                </h1>
-
-                <p class="hero-description">
-                    Выбирай игру, пакет и оформляй заказ прямо в Telegram.
-                </p>
-            </div>
-
-            <div class="hero-icon">
-                🎮
-            </div>
-
-        </section>
-
-
-        <!-- ИГРЫ -->
-        <section class="section">
-
-            <div class="section-title">
                 <h2>Выберите игру</h2>
+                <p>Выберите игру для покупки</p>
+            </div>
+        </div>
+
+
+        <div class="games">
+
+            <button
+                class="game-card"
+                onclick="selectGame('PUBG Mobile')"
+            >
+                <div class="game-icon">🎯</div>
+
+                <div class="game-info">
+                    <strong>PUBG Mobile</strong>
+                    <span>UC</span>
+                </div>
+
+                <div class="arrow">›</div>
+            </button>
+
+
+            <button
+                class="game-card"
+                onclick="selectGame('Mobile Legends')"
+            >
+                <div class="game-icon">⚔️</div>
+
+                <div class="game-info">
+                    <strong>Mobile Legends</strong>
+                    <span>Diamonds</span>
+                </div>
+
+                <div class="arrow">›</div>
+            </button>
+
+
+            <button
+                class="game-card"
+                onclick="selectGame('Free Fire')"
+            >
+                <div class="game-icon">🔥</div>
+
+                <div class="game-info">
+                    <strong>Free Fire</strong>
+                    <span>Diamonds</span>
+                </div>
+
+                <div class="arrow">›</div>
+            </button>
+
+
+            <button
+                class="game-card"
+                onclick="selectGame('Brawl Stars')"
+            >
+                <div class="game-icon">⭐</div>
+
+                <div class="game-info">
+                    <strong>Brawl Stars</strong>
+                    <span>Gems</span>
+                </div>
+
+                <div class="arrow">›</div>
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- STEP 2 -->
+
+    <section
+        class="step-section hidden-section"
+        id="packageSection"
+    >
+
+        <div class="step-title">
+
+            <span class="step-number">2</span>
+
+            <div>
+                <h2>Выберите валюту</h2>
+
+                <p id="selectedGame">
+                    Сначала выберите игру
+                </p>
             </div>
 
-            <div class="games">
-
-                <button
-                    type="button"
-                    class="game-card"
-                    onclick="selectGame('PUBG Mobile')"
-                >
-                    <div class="game-icon pubg">
-                        P
-                    </div>
-
-                    <div>
-                        <strong>PUBG Mobile</strong>
-                        <small>UC</small>
-                    </div>
-                </button>
+        </div>
 
 
-                <button
-                    type="button"
-                    class="game-card"
-                    onclick="selectGame('Mobile Legends')"
-                >
-                    <div class="game-icon ml">
-                        M
-                    </div>
+        <div id="packages"></div>
 
-                    <div>
-                        <strong>Mobile Legends</strong>
-                        <small>Diamonds</small>
-                    </div>
-                </button>
+    </section>
 
 
-                <button
-                    type="button"
-                    class="game-card"
-                    onclick="selectGame('Free Fire')"
-                >
-                    <div class="game-icon ff">
-                        F
-                    </div>
+    <!-- STEP 3 -->
 
-                    <div>
-                        <strong>Free Fire</strong>
-                        <small>Diamonds</small>
-                    </div>
-                </button>
+    <section
+        class="step-section hidden-section"
+        id="playerSection"
+    >
 
+        <div class="step-title">
 
-                <button
-                    type="button"
-                    class="game-card"
-                    onclick="selectGame('Brawl Stars')"
-                >
-                    <div class="game-icon bs">
-                        B
-                    </div>
+            <span class="step-number">3</span>
 
-                    <div>
-                        <strong>Brawl Stars</strong>
-                        <small>Gems</small>
-                    </div>
-                </button>
+            <div>
+                <h2>ID игрока</h2>
 
+                <p>
+                    Введите ID аккаунта
+                </p>
             </div>
 
-        </section>
+        </div>
 
 
-        <!-- ПОКУПКА -->
-        <section class="section order-section">
+        <div class="input-box">
 
-            <div class="section-title">
-                <h2>Покупка</h2>
+            <label for="playerId">
+                🆔 ID игрока
+            </label>
+
+            <input
+                id="playerId"
+                type="text"
+                inputmode="numeric"
+                placeholder="Например: 5123456789"
+                oninput="updateSummary()"
+            >
+
+        </div>
+
+    </section>
+
+
+    <!-- STEP 4 -->
+
+    <section
+        class="step-section hidden-section"
+        id="summarySection"
+    >
+
+        <div class="step-title">
+
+            <span class="step-number">4</span>
+
+            <div>
+                <h2>Ваш заказ</h2>
+
+                <p>
+                    Проверьте данные перед покупкой
+                </p>
+            </div>
+
+        </div>
+
+
+        <div class="order-card">
+
+            <div class="order-row">
+                <span>🎮 Игра</span>
+
+                <strong id="summaryGame">
+                    —
+                </strong>
             </div>
 
 
-            <!-- ВЫБРАННАЯ ИГРА -->
+            <div class="order-row">
+                <span>💎 Пакет</span>
 
-            <div class="selected-game">
+                <strong id="summaryPackage">
+                    —
+                </strong>
+            </div>
 
-                <span>
-                    Выбрана игра:
-                </span>
 
-                <strong id="selectedGame">
-                    Не выбрана
+            <div class="order-row">
+                <span>🆔 ID игрока</span>
+
+                <strong id="summaryPlayer">
+                    —
+                </strong>
+            </div>
+
+
+            <div class="order-total">
+
+                <span>К оплате</span>
+
+                <strong id="summaryPrice">
+                    0 сум
                 </strong>
 
             </div>
 
-
-            <!-- ПАКЕТЫ -->
-
-            <div class="packages" id="packages">
-
-                <p class="packages-empty">
-                    Сначала выберите игру
-                </p>
-
-            </div>
-
-
-            <!-- ID ИГРОКА -->
-
-            <div class="input-box">
-
-                <label for="playerId">
-                    ID игрока
-                </label>
-
-                <input
-                    id="playerId"
-                    type="text"
-                    placeholder="Введите ID игрока"
-                    autocomplete="off"
-                >
-
-            </div>
-
-
-            <!-- ИТОГ -->
-
-            <div class="summary">
-
-                <div>
-                    <span>Игра</span>
-
-                    <strong id="summaryGame">
-                        —
-                    </strong>
-                </div>
-
-
-                <div>
-                    <span>Пакет</span>
-
-                    <strong id="summaryPackage">
-                        —
-                    </strong>
-                </div>
-
-
-                <div class="total">
-                    <span>Итого</span>
-
-                    <strong id="summaryPrice">
-                        0 сум
-                    </strong>
-                </div>
-
-            </div>
-
-
-            <!-- КУПИТЬ -->
-
-            <button
-                type="button"
-                class="buy-button"
-                onclick="createOrder()"
-            >
-                Купить
-            </button>
-
-        </section>
-
-    </main>
-
-
-    <!-- НИЖНЕЕ МЕНЮ -->
-
-    <nav class="bottom-nav">
-
-        <button
-            type="button"
-            class="nav-item active"
-        >
-            <span>🏠</span>
-            <small>Главная</small>
-        </button>
+        </div>
 
 
         <button
-            type="button"
-            class="nav-item"
-            onclick="showOrders()"
+            id="buyButton"
+            class="buy-button"
+            onclick="createOrder()"
         >
-            <span>📦</span>
-            <small>Заказы</small>
+            🛒 КУПИТЬ
         </button>
 
-
-        <button
-            type="button"
-            class="nav-item"
-            onclick="showHelp()"
-        >
-            <span>❓</span>
-            <small>Помощь</small>
-        </button>
-
-    </nav>
+    </section>
 
 </div>
 
 
-<!-- JAVASCRIPT -->
+<!-- BOTTOM NAV -->
 
-<script src="script.js?v=11"></script>
+<nav class="bottom-nav">
+
+    <button onclick="showOrders()">
+        📦
+        <span>Мои заказы</span>
+    </button>
+
+    <button onclick="showHelp()">
+        ❓
+        <span>Помощь</span>
+    </button>
+
+</nav>
+
+
+<script src="script.js?v=20"></script>
 
 </body>
 </html>

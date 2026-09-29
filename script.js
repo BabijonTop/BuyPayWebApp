@@ -1,5 +1,5 @@
 // ========================================
-// TELEGRAM WEB APP
+// BUY PAY — ANIMATED SCRIPT
 // ========================================
 
 const tg = window.Telegram.WebApp;
@@ -9,24 +9,23 @@ tg.expand();
 
 
 // ========================================
-// ПОЛЬЗОВАТЕЛЬ TELEGRAM
+// TELEGRAM USER
 // ========================================
 
-const telegramUser = tg.initDataUnsafe?.user || {};
+const telegramUser =
+    tg.initDataUnsafe?.user || {};
 
 const welcomeText =
     document.getElementById("welcomeText");
 
 if (welcomeText && telegramUser.first_name) {
-
     welcomeText.textContent =
         `Xush kelibsiz, ${telegramUser.first_name}!`;
-
 }
 
 
 // ========================================
-// ДАННЫЕ ИГР
+// ИГРЫ
 // ========================================
 
 const games = {
@@ -124,6 +123,52 @@ let selectedPaymentMethod = null;
 
 
 // ========================================
+// ПЛАВНАЯ ПРОКРУТКА
+// ========================================
+
+function scrollToElement(element) {
+
+    if (!element) {
+        return;
+    }
+
+    setTimeout(() => {
+
+        element.scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+        });
+
+    }, 150);
+}
+
+
+// ========================================
+// ПОКАЗ БЛОКА
+// ========================================
+
+function showSection(id) {
+
+    const section =
+        document.getElementById(id);
+
+    if (!section) {
+        return;
+    }
+
+    section.classList.remove(
+        "hidden-section"
+    );
+
+    section.classList.add(
+        "show-section"
+    );
+
+    scrollToElement(section);
+}
+
+
+// ========================================
 // ВЫБОР ИГРЫ
 // ========================================
 
@@ -139,23 +184,33 @@ function selectGame(gameName) {
     selectedPackage = null;
 
 
-    // Выделяем игру
+    // Убираем активность
+    document
+        .querySelectorAll(".game-card")
+        .forEach(card => {
 
-    const gameCards =
+            card.classList.remove(
+                "active"
+            );
+
+        });
+
+
+    // Активная игра
+    const cards =
         document.querySelectorAll(
             ".game-card"
         );
 
-    gameCards.forEach(card => {
+    cards.forEach(card => {
 
-        card.classList.remove(
-            "active"
-        );
-
-        const text =
-            card.innerText.trim();
-
-        if (text.includes(gameName)) {
+        if (
+            card.innerText
+                .toLowerCase()
+                .includes(
+                    gameName.toLowerCase()
+                )
+        ) {
 
             card.classList.add(
                 "active"
@@ -166,8 +221,7 @@ function selectGame(gameName) {
     });
 
 
-    // Название игры
-
+    // Обновляем название
     const selectedGameElement =
         document.getElementById(
             "selectedGame"
@@ -181,15 +235,27 @@ function selectGame(gameName) {
     }
 
 
-    // Пакеты
-
+    // Создаём пакеты
     renderPackages(gameName);
 
 
-    // Итог
+    // Показываем следующий шаг
+    showSection(
+        "packageSection"
+    );
+
+
+    // Скрываем следующие шаги
+    hideSection(
+        "playerSection"
+    );
+
+    hideSection(
+        "summarySection"
+    );
+
 
     updateSummary();
-
 }
 
 
@@ -199,70 +265,91 @@ function selectGame(gameName) {
 
 function renderPackages(gameName) {
 
-    const packagesContainer =
+    const container =
         document.getElementById(
             "packages"
         );
 
-    if (!packagesContainer) {
-
+    if (!container) {
         return;
-
     }
 
 
-    packagesContainer.innerHTML = "";
+    container.innerHTML = "";
 
 
     const packages =
         games[gameName];
 
     if (!packages) {
-
         return;
-
     }
 
 
-    packages.forEach(item => {
+    packages.forEach(
+        (item, index) => {
 
-        const button =
-            document.createElement(
-                "button"
-            );
-
-        button.type = "button";
-
-        button.className =
-            "package";
-
-
-        button.innerHTML = `
-            <strong>${item.amount}</strong>
-            <span>${item.price.toLocaleString()} сум</span>
-        `;
-
-
-        button.addEventListener(
-            "click",
-            function () {
-
-                selectPackage(
-                    button,
-                    item.amount,
-                    item.price
+            const button =
+                document.createElement(
+                    "button"
                 );
 
-            }
-        );
+            button.type = "button";
+
+            button.className =
+                "package";
 
 
-        packagesContainer.appendChild(
-            button
-        );
+            button.style.animationDelay =
+                `${index * 0.08}s`;
 
-    });
 
+            button.innerHTML = `
+
+                <div class="package-left">
+
+                    <strong>
+                        ${item.amount}
+                    </strong>
+
+                    <small>
+                        Игровая валюта
+                    </small>
+
+                </div>
+
+                <div class="package-price">
+
+                    ${item.price.toLocaleString()}
+                    сум
+
+                    <span>›</span>
+
+                </div>
+
+            `;
+
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    selectPackage(
+                        button,
+                        item.amount,
+                        item.price
+                    );
+
+                }
+            );
+
+
+            container.appendChild(
+                button
+            );
+
+        }
+    );
 }
 
 
@@ -283,18 +370,15 @@ function selectPackage(
     );
 
 
-    const packages =
-        document.querySelectorAll(
-            ".package"
-        );
+    document
+        .querySelectorAll(".package")
+        .forEach(item => {
 
-    packages.forEach(item => {
+            item.classList.remove(
+                "active"
+            );
 
-        item.classList.remove(
-            "active"
-        );
-
-    });
+        });
 
 
     button.classList.add(
@@ -311,13 +395,64 @@ function selectPackage(
     };
 
 
+    // Показываем ID
+    showSection(
+        "playerSection"
+    );
+
+
+    // Скрываем итог,
+    // пока ID не введён
+    hideSection(
+        "summarySection"
+    );
+
+
     updateSummary();
 
+
+    setTimeout(() => {
+
+        const input =
+            document.getElementById(
+                "playerId"
+            );
+
+        if (input) {
+
+            input.focus();
+
+        }
+
+    }, 500);
 }
 
 
 // ========================================
-// ОБНОВЛЕНИЕ ИТОГА
+// СКРЫТЬ БЛОК
+// ========================================
+
+function hideSection(id) {
+
+    const section =
+        document.getElementById(id);
+
+    if (!section) {
+        return;
+    }
+
+    section.classList.remove(
+        "show-section"
+    );
+
+    section.classList.add(
+        "hidden-section"
+    );
+}
+
+
+// ========================================
+// ОБНОВЛЕНИЕ ЗАКАЗА
 // ========================================
 
 function updateSummary() {
@@ -332,10 +467,27 @@ function updateSummary() {
             "summaryPackage"
         );
 
+    const summaryPlayer =
+        document.getElementById(
+            "summaryPlayer"
+        );
+
     const summaryPrice =
         document.getElementById(
             "summaryPrice"
         );
+
+
+    const playerInput =
+        document.getElementById(
+            "playerId"
+        );
+
+
+    const playerId =
+        playerInput
+            ? playerInput.value.trim()
+            : "";
 
 
     if (summaryGame) {
@@ -356,15 +508,41 @@ function updateSummary() {
     }
 
 
+    if (summaryPlayer) {
+
+        summaryPlayer.textContent =
+            playerId || "—";
+
+    }
+
+
     if (summaryPrice) {
 
         summaryPrice.textContent =
             selectedPackage
-                ? selectedPackage.price.toLocaleString() + " сум"
+                ? selectedPackage.price
+                    .toLocaleString() +
+                  " сум"
                 : "0 сум";
 
     }
 
+
+    // Если есть игра,
+    // пакет и ID —
+    // показываем итог
+
+    if (
+        selectedGame &&
+        selectedPackage &&
+        playerId.length > 0
+    ) {
+
+        showSection(
+            "summarySection"
+        );
+
+    }
 }
 
 
@@ -381,7 +559,6 @@ function generateOrderNumber() {
         );
 
     return `BP-${random}`;
-
 }
 
 
@@ -391,13 +568,12 @@ function generateOrderNumber() {
 
 function createOrder() {
 
-    // Проверка игры
-
     if (!selectedGame) {
 
         tg.showPopup({
 
-            title: "Выберите игру",
+            title:
+                "Выберите игру",
 
             message:
                 "Сначала выберите игру.",
@@ -411,20 +587,18 @@ function createOrder() {
         });
 
         return;
-
     }
 
-
-    // Проверка пакета
 
     if (!selectedPackage) {
 
         tg.showPopup({
 
-            title: "Выберите пакет",
+            title:
+                "Выберите пакет",
 
             message:
-                "Сначала выберите пакет игровой валюты.",
+                "Сначала выберите пакет.",
 
             buttons: [
                 {
@@ -435,11 +609,8 @@ function createOrder() {
         });
 
         return;
-
     }
 
-
-    // ID игрока
 
     const playerInput =
         document.getElementById(
@@ -457,10 +628,11 @@ function createOrder() {
 
         tg.showPopup({
 
-            title: "Введите ID игрока",
+            title:
+                "Введите ID игрока",
 
             message:
-                "Пожалуйста, введите ID игрока.",
+                "Введите ID аккаунта.",
 
             buttons: [
                 {
@@ -471,13 +643,8 @@ function createOrder() {
         });
 
         return;
-
     }
 
-
-    // ====================================
-    // СОЗДАЁМ ЗАКАЗ
-    // ====================================
 
     currentOrder = {
 
@@ -520,10 +687,7 @@ function createOrder() {
     selectedPaymentMethod = null;
 
 
-    // Открываем оплату
-
     showPaymentScreen();
-
 }
 
 
@@ -534,18 +698,15 @@ function createOrder() {
 function showPaymentScreen() {
 
     if (!currentOrder) {
-
         return;
-
     }
 
-
-    // Удаляем старый экран
 
     const oldScreen =
         document.getElementById(
             "paymentScreen"
         );
+
 
     if (oldScreen) {
 
@@ -554,12 +715,11 @@ function showPaymentScreen() {
     }
 
 
-    // Создаём экран
-
     const screen =
         document.createElement(
             "div"
         );
+
 
     screen.id =
         "paymentScreen";
@@ -573,19 +733,36 @@ function showPaymentScreen() {
 
                 <button
                     class="payment-close"
-                    onclick="closePaymentScreen()"
+                    onclick="
+                        closePaymentScreen()
+                    "
                 >
                     ✕
                 </button>
 
 
-                <h2>💳 Оплата заказа</h2>
+                <div class="payment-icon">
+                    💳
+                </div>
+
+
+                <h2>
+                    Оплата заказа
+                </h2>
+
+
+                <p class="payment-subtitle">
+                    Проверьте данные заказа
+                </p>
 
 
                 <div class="payment-order">
 
                     <div>
-                        <span>Заказ</span>
+                        <span>
+                            Заказ
+                        </span>
+
                         <strong>
                             #${currentOrder.order_number}
                         </strong>
@@ -593,7 +770,10 @@ function showPaymentScreen() {
 
 
                     <div>
-                        <span>Игра</span>
+                        <span>
+                            Игра
+                        </span>
+
                         <strong>
                             ${currentOrder.game}
                         </strong>
@@ -601,7 +781,10 @@ function showPaymentScreen() {
 
 
                     <div>
-                        <span>Пакет</span>
+                        <span>
+                            Пакет
+                        </span>
+
                         <strong>
                             ${currentOrder.package}
                         </strong>
@@ -609,7 +792,10 @@ function showPaymentScreen() {
 
 
                     <div>
-                        <span>ID игрока</span>
+                        <span>
+                            ID игрока
+                        </span>
+
                         <strong>
                             ${currentOrder.player_id}
                         </strong>
@@ -618,7 +804,9 @@ function showPaymentScreen() {
 
                     <div class="payment-total">
 
-                        <span>К оплате</span>
+                        <span>
+                            К оплате
+                        </span>
 
                         <strong>
                             ${currentOrder.price.toLocaleString()}
@@ -630,7 +818,9 @@ function showPaymentScreen() {
                 </div>
 
 
-                <h3>Выберите способ оплаты</h3>
+                <h3>
+                    Способ оплаты
+                </h3>
 
 
                 <div class="payment-methods">
@@ -638,7 +828,12 @@ function showPaymentScreen() {
                     <button
                         type="button"
                         class="payment-method"
-                        onclick="selectPaymentMethod(this, 'Payme')"
+                        onclick="
+                            selectPaymentMethod(
+                                this,
+                                'Payme'
+                            )
+                        "
                     >
                         💳 Payme
                     </button>
@@ -647,7 +842,12 @@ function showPaymentScreen() {
                     <button
                         type="button"
                         class="payment-method"
-                        onclick="selectPaymentMethod(this, 'Click')"
+                        onclick="
+                            selectPaymentMethod(
+                                this,
+                                'Click'
+                            )
+                        "
                     >
                         💳 Click
                     </button>
@@ -656,7 +856,12 @@ function showPaymentScreen() {
                     <button
                         type="button"
                         class="payment-method"
-                        onclick="selectPaymentMethod(this, 'Другой')"
+                        onclick="
+                            selectPaymentMethod(
+                                this,
+                                'Другой'
+                            )
+                        "
                     >
                         💰 Другой способ
                     </button>
@@ -666,8 +871,8 @@ function showPaymentScreen() {
 
                 <div class="payment-info">
 
-                    ℹ️ Способ оплаты будет подключён
-                    на следующем этапе.
+                    ℹ️ После выбора способа
+                    оплаты появится инструкция.
 
                 </div>
 
@@ -675,7 +880,9 @@ function showPaymentScreen() {
                 <button
                     type="button"
                     class="payment-confirm"
-                    onclick="confirmPayment()"
+                    onclick="
+                        confirmPayment()
+                    "
                 >
                     ✅ Я оплатил
                 </button>
@@ -691,14 +898,12 @@ function showPaymentScreen() {
         screen
     );
 
-
     addPaymentStyles();
-
 }
 
 
 // ========================================
-// ВЫБОР СПОСОБА ОПЛАТЫ
+// ВЫБОР ОПЛАТЫ
 // ========================================
 
 function selectPaymentMethod(
@@ -706,19 +911,17 @@ function selectPaymentMethod(
     method
 ) {
 
-    const buttons =
-        document.querySelectorAll(
+    document
+        .querySelectorAll(
             ".payment-method"
-        );
+        )
+        .forEach(item => {
 
+            item.classList.remove(
+                "active"
+            );
 
-    buttons.forEach(item => {
-
-        item.classList.remove(
-            "active"
-        );
-
-    });
+        });
 
 
     button.classList.add(
@@ -730,24 +933,51 @@ function selectPaymentMethod(
         method;
 
 
-    console.log(
-        "Выбран способ оплаты:",
-        method
-    );
+    const info =
+        document.querySelector(
+            ".payment-info"
+        );
 
+
+    if (info) {
+
+        if (method === "Payme") {
+
+            info.innerHTML =
+                "💳 Вы выбрали Payme.<br><br>" +
+                "Инструкция по оплате будет " +
+                "подключена на следующем этапе.";
+
+        }
+
+        else if (method === "Click") {
+
+            info.innerHTML =
+                "💳 Вы выбрали Click.<br><br>" +
+                "Инструкция по оплате будет " +
+                "подключена на следующем этапе.";
+
+        }
+
+        else {
+
+            info.innerHTML =
+                "💰 Выбран другой способ оплаты.";
+
+        }
+
+    }
 }
 
 
 // ========================================
-// ПОДТВЕРЖДЕНИЕ ОПЛАТЫ
+// ПОДТВЕРЖДЕНИЕ
 // ========================================
 
 function confirmPayment() {
 
     if (!currentOrder) {
-
         return;
-
     }
 
 
@@ -755,7 +985,8 @@ function confirmPayment() {
 
         tg.showPopup({
 
-            title: "Выберите способ",
+            title:
+                "Выберите способ",
 
             message:
                 "Сначала выберите способ оплаты.",
@@ -769,20 +1000,16 @@ function confirmPayment() {
         });
 
         return;
-
     }
 
-
-    // Обновляем заказ
 
     currentOrder.payment_method =
         selectedPaymentMethod;
 
+
     currentOrder.status =
         "Оплата на проверке";
 
-
-    // Сохраняем
 
     localStorage.setItem(
         "lastOrder",
@@ -798,10 +1025,6 @@ function confirmPayment() {
     );
 
 
-    // ====================================
-    // ОТПРАВЛЯЕМ БОТУ
-    // ====================================
-
     try {
 
         tg.sendData(
@@ -810,17 +1033,19 @@ function confirmPayment() {
             )
         );
 
-    } catch (error) {
+    }
+
+    catch (error) {
 
         console.error(
-            "Ошибка отправки:",
+            "Ошибка:",
             error
         );
 
-
         tg.showPopup({
 
-            title: "Ошибка",
+            title:
+                "Ошибка",
 
             message:
                 "Не удалось отправить заказ.",
@@ -834,12 +1059,11 @@ function confirmPayment() {
         });
 
     }
-
 }
 
 
 // ========================================
-// ЗАКРЫТИЕ ОПЛАТЫ
+// ЗАКРЫТЬ ОПЛАТУ
 // ========================================
 
 function closePaymentScreen() {
@@ -855,7 +1079,6 @@ function closePaymentScreen() {
         screen.remove();
 
     }
-
 }
 
 
@@ -875,7 +1098,8 @@ function showOrders() {
 
         tg.showPopup({
 
-            title: "Мои заказы",
+            title:
+                "Мои заказы",
 
             message:
                 "У вас пока нет заказов.",
@@ -889,7 +1113,6 @@ function showOrders() {
         });
 
         return;
-
     }
 
 
@@ -903,10 +1126,10 @@ function showOrders() {
 
         tg.showPopup({
 
-            title: "Мой заказ",
+            title:
+                "Мой заказ",
 
             message:
-
 `🆔 #${order.order_number}
 
 🎮 ${order.game}
@@ -929,11 +1152,14 @@ function showOrders() {
 
         });
 
-    } catch {
+    }
+
+    catch {
 
         tg.showPopup({
 
-            title: "Ошибка",
+            title:
+                "Ошибка",
 
             message:
                 "Не удалось загрузить заказ.",
@@ -947,7 +1173,6 @@ function showOrders() {
         });
 
     }
-
 }
 
 
@@ -959,10 +1184,13 @@ function showHelp() {
 
     tg.showPopup({
 
-        title: "YORDAM",
+        title:
+            "YORDAM",
 
         message:
-            "Если у вас возникли вопросы или проблемы с заказом, обратитесь в поддержку BuyPay.",
+            "Если у вас возникли вопросы " +
+            "или проблемы с заказом, " +
+            "обратитесь в поддержку BuyPay.",
 
         buttons: [
             {
@@ -971,12 +1199,11 @@ function showHelp() {
         ]
 
     });
-
 }
 
 
 // ========================================
-// СТИЛИ ЭКРАНА ОПЛАТЫ
+// СТИЛИ ОПЛАТЫ
 // ========================================
 
 function addPaymentStyles() {
@@ -986,9 +1213,7 @@ function addPaymentStyles() {
             "paymentStyles"
         )
     ) {
-
         return;
-
     }
 
 
@@ -1005,112 +1230,150 @@ function addPaymentStyles() {
     style.textContent = `
 
         #paymentScreen {
-
             position: fixed;
-
             inset: 0;
-
             z-index: 9999;
-
+            animation: paymentAppear .35s ease;
         }
 
 
         .payment-overlay {
-
             width: 100%;
-
             height: 100%;
 
-            background: rgba(0, 0, 0, 0.65);
+            background:
+                rgba(0, 0, 0, .72);
 
             display: flex;
 
             align-items: center;
-
             justify-content: center;
 
-            padding: 20px;
+            padding: 18px;
 
-            box-sizing: border-box;
-
+            backdrop-filter: blur(8px);
         }
 
 
         .payment-box {
-
             position: relative;
 
             width: 100%;
-
             max-width: 430px;
 
             max-height: 90vh;
 
             overflow-y: auto;
 
-            background: var(--tg-theme-bg-color, #ffffff);
+            padding: 25px;
 
-            color: var(--tg-theme-text-color, #111111);
+            border-radius: 26px;
 
-            border-radius: 22px;
+            background:
+                linear-gradient(
+                    145deg,
+                    #151a32,
+                    #0c1020
+                );
 
-            padding: 24px;
+            border:
+                1px solid
+                rgba(255,255,255,.12);
 
-            box-sizing: border-box;
+            box-shadow:
+                0 25px 80px
+                rgba(0,0,0,.55);
 
+            animation:
+                paymentBoxAppear .45s ease;
+        }
+
+
+        .payment-icon {
+            width: 65px;
+            height: 65px;
+
+            margin:
+                0 auto 12px;
+
+            border-radius: 20px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 32px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #477cff,
+                    #8a52ff
+                );
+
+            box-shadow:
+                0 10px 35px
+                rgba(80,100,255,.3);
         }
 
 
         .payment-box h2 {
-
-            margin-top: 0;
-
             text-align: center;
-
+            margin: 5px 0;
         }
 
 
-        .payment-box h3 {
-
-            margin-top: 24px;
-
-            font-size: 17px;
-
+        .payment-subtitle {
+            text-align: center;
+            opacity: .55;
+            margin-top: 5px;
         }
 
 
         .payment-close {
-
             position: absolute;
 
-            top: 12px;
+            top: 13px;
+            right: 13px;
 
-            right: 12px;
-
-            width: 36px;
-
-            height: 36px;
+            width: 38px;
+            height: 38px;
 
             border: none;
-
             border-radius: 50%;
 
-            background: rgba(127, 127, 127, 0.15);
+            background:
+                rgba(255,255,255,.08);
 
-            font-size: 18px;
+            color: white;
 
             cursor: pointer;
 
+            transition: .2s;
+        }
+
+
+        .payment-close:hover {
+            transform: rotate(90deg);
+            background:
+                rgba(255,255,255,.15);
         }
 
 
         .payment-order {
 
-            background: rgba(127, 127, 127, 0.10);
+            margin-top: 20px;
 
-            border-radius: 16px;
+            padding: 15px;
 
-            padding: 14px;
+            border-radius: 18px;
+
+            background:
+                rgba(255,255,255,.055);
+
+            border:
+                1px solid
+                rgba(255,255,255,.08);
 
         }
 
@@ -1119,26 +1382,23 @@ function addPaymentStyles() {
 
             display: flex;
 
-            justify-content: space-between;
+            justify-content:
+                space-between;
 
             gap: 15px;
 
-            padding: 8px 0;
+            padding: 9px 0;
 
         }
 
 
         .payment-order span {
-
-            opacity: 0.7;
-
+            opacity: .55;
         }
 
 
         .payment-order strong {
-
             text-align: right;
-
         }
 
 
@@ -1146,17 +1406,17 @@ function addPaymentStyles() {
 
             margin-top: 8px;
 
-            padding-top: 14px !important;
+            padding-top: 15px !important;
 
-            border-top: 1px solid rgba(127, 127, 127, 0.2);
+            border-top:
+                1px solid
+                rgba(255,255,255,.10);
 
         }
 
 
         .payment-total strong {
-
             font-size: 19px;
-
         }
 
 
@@ -1175,47 +1435,70 @@ function addPaymentStyles() {
 
             width: 100%;
 
-            padding: 14px;
+            padding: 15px;
 
-            border: 2px solid rgba(127, 127, 127, 0.18);
+            border-radius: 15px;
 
-            border-radius: 14px;
+            border:
+                1px solid
+                rgba(255,255,255,.10);
 
-            background: transparent;
+            background:
+                rgba(255,255,255,.05);
 
-            color: inherit;
-
-            font-size: 16px;
+            color: white;
 
             text-align: left;
 
+            font-size: 16px;
+
             cursor: pointer;
+
+            transition: .25s;
+
+        }
+
+
+        .payment-method:hover {
+
+            transform:
+                translateX(4px);
+
+            background:
+                rgba(255,255,255,.09);
 
         }
 
 
         .payment-method.active {
 
-            border-color: #2481cc;
+            border-color:
+                #6e9cff;
 
-            background: rgba(36, 129, 204, 0.10);
+            background:
+                rgba(70,120,255,.15);
+
+            box-shadow:
+                0 0 20px
+                rgba(70,120,255,.15);
 
         }
 
 
         .payment-info {
 
-            margin-top: 16px;
+            margin-top: 15px;
 
-            padding: 12px;
+            padding: 13px;
 
-            border-radius: 12px;
+            border-radius: 14px;
 
-            background: rgba(127, 127, 127, 0.10);
+            background:
+                rgba(255,255,255,.05);
 
             font-size: 13px;
 
-            line-height: 1.4;
+            line-height: 1.5;
 
         }
 
@@ -1226,21 +1509,88 @@ function addPaymentStyles() {
 
             margin-top: 18px;
 
-            padding: 15px;
+            padding: 16px;
 
             border: none;
 
-            border-radius: 14px;
+            border-radius: 15px;
 
-            background: #2481cc;
+            background:
+                linear-gradient(
+                    110deg,
+                    #477cff,
+                    #8a52ff,
+                    #477cff
+                );
+
+            background-size: 200%;
 
             color: white;
 
             font-size: 16px;
 
-            font-weight: 600;
+            font-weight: 700;
 
             cursor: pointer;
+
+            animation:
+                paymentGradient 4s
+                linear infinite;
+
+            transition: .2s;
+
+        }
+
+
+        .payment-confirm:hover {
+
+            transform:
+                translateY(-3px);
+
+        }
+
+
+        @keyframes paymentAppear {
+
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+
+        }
+
+
+        @keyframes paymentBoxAppear {
+
+            from {
+                opacity: 0;
+                transform:
+                    translateY(35px)
+                    scale(.94);
+            }
+
+            to {
+                opacity: 1;
+                transform:
+                    translateY(0)
+                    scale(1);
+            }
+
+        }
+
+
+        @keyframes paymentGradient {
+
+            0% {
+                background-position: 0%;
+            }
+
+            100% {
+                background-position: 200%;
+            }
 
         }
 
@@ -1250,7 +1600,6 @@ function addPaymentStyles() {
     document.head.appendChild(
         style
     );
-
 }
 
 
@@ -1259,5 +1608,5 @@ function addPaymentStyles() {
 // ========================================
 
 console.log(
-    "BuyPay Web App запущен!"
+    "🔥 BuyPay Animated Web App запущен!"
 );
