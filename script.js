@@ -12,110 +12,59 @@ let selectedPackage = null;
 let currentBalance = 0;
 
 
-// ===============================
+// ========================================
 // ИГРЫ
-// ===============================
+// ========================================
 
 const games = {
 
     "PUBG Mobile": [
-        {
-            name: "60 UC",
-            price: 12000
-        },
-        {
-            name: "325 UC",
-            price: 55000
-        },
-        {
-            name: "660 UC",
-            price: 105000
-        },
-        {
-            name: "1800 UC",
-            price: 270000
-        }
+        { name: "60 UC", price: 12000 },
+        { name: "325 UC", price: 55000 },
+        { name: "660 UC", price: 105000 },
+        { name: "1800 UC", price: 270000 }
     ],
 
     "Mobile Legends": [
-        {
-            name: "86 Diamonds",
-            price: 15000
-        },
-        {
-            name: "172 Diamonds",
-            price: 30000
-        },
-        {
-            name: "257 Diamonds",
-            price: 45000
-        },
-        {
-            name: "706 Diamonds",
-            price: 80000
-        }
+        { name: "86 Diamonds", price: 15000 },
+        { name: "172 Diamonds", price: 30000 },
+        { name: "257 Diamonds", price: 45000 },
+        { name: "706 Diamonds", price: 80000 }
     ],
 
     "Free Fire": [
-        {
-            name: "100 Diamonds",
-            price: 15000
-        },
-        {
-            name: "310 Diamonds",
-            price: 40000
-        },
-        {
-            name: "520 Diamonds",
-            price: 65000
-        },
-        {
-            name: "1060 Diamonds",
-            price: 120000
-        }
+        { name: "100 Diamonds", price: 15000 },
+        { name: "310 Diamonds", price: 40000 },
+        { name: "520 Diamonds", price: 65000 },
+        { name: "1060 Diamonds", price: 120000 }
     ],
 
     "Brawl Stars": [
-        {
-            name: "30 Gems",
-            price: 15000
-        },
-        {
-            name: "80 Gems",
-            price: 35000
-        },
-        {
-            name: "170 Gems",
-            price: 70000
-        },
-        {
-            name: "360 Gems",
-            price: 140000
-        }
+        { name: "30 Gems", price: 15000 },
+        { name: "80 Gems", price: 35000 },
+        { name: "170 Gems", price: 70000 },
+        { name: "360 Gems", price: 140000 }
     ]
 
 };
 
 
-// ===============================
+// ========================================
 // ФОРМАТ СУММЫ
-// ===============================
+// ========================================
 
 function formatSum(number) {
-
-    return Number(number || 0)
-        .toLocaleString("ru-RU") + " сум";
-
+    return Number(number || 0).toLocaleString("ru-RU") + " сум";
 }
 
 
-// ===============================
-// СООБЩЕНИЯ
-// ===============================
+// ========================================
+// ОБЩЕЕ СООБЩЕНИЕ
+// ========================================
 
 function showMessage(text) {
 
-    if (tg.showPopup) {
+    if (typeof tg.showPopup === "function") {
 
         tg.showPopup({
             title: "BuyPay",
@@ -136,23 +85,20 @@ function showMessage(text) {
 }
 
 
-// ===============================
+// ========================================
 // ВЫБОР ИГРЫ
-// ===============================
+// ========================================
 
 function selectGame(game) {
 
     selectedGame = game;
-
     selectedPackage = null;
 
     const selectedGameElement =
         document.getElementById("selectedGame");
 
     if (selectedGameElement) {
-
         selectedGameElement.textContent = game;
-
     }
 
     renderPackages();
@@ -160,13 +106,12 @@ function selectGame(game) {
     showSection("packageSection");
 
     scrollToElement("packageSection");
-
 }
 
 
-// ===============================
+// ========================================
 // ПАКЕТЫ
-// ===============================
+// ========================================
 
 function renderPackages() {
 
@@ -177,8 +122,7 @@ function renderPackages() {
 
     container.innerHTML = "";
 
-    const packages =
-        games[selectedGame] || [];
+    const packages = games[selectedGame] || [];
 
     packages.forEach((item, index) => {
 
@@ -186,48 +130,29 @@ function renderPackages() {
             document.createElement("button");
 
         button.type = "button";
-
         button.className = "package-card";
 
         button.innerHTML = `
-
             <div>
-
-                <strong>
-                    ${item.name}
-                </strong>
-
-                <span>
-                    Игровая валюта
-                </span>
-
+                <strong>${item.name}</strong>
+                <span>Игровая валюта</span>
             </div>
 
-            <b>
-                ${formatSum(item.price)}
-            </b>
-
+            <b>${formatSum(item.price)}</b>
         `;
 
-        button.addEventListener(
-            "click",
-            function () {
-
-                selectPackage(index);
-
-            }
-        );
+        button.addEventListener("click", function () {
+            selectPackage(index);
+        });
 
         container.appendChild(button);
-
     });
-
 }
 
 
-// ===============================
+// ========================================
 // ВЫБОР ПАКЕТА
-// ===============================
+// ========================================
 
 function selectPackage(index) {
 
@@ -239,17 +164,15 @@ function selectPackage(index) {
     updateSummary();
 
     showSection("playerSection");
-
     showSection("summarySection");
 
     scrollToElement("playerSection");
-
 }
 
 
-// ===============================
+// ========================================
 // ОБНОВЛЕНИЕ ЗАКАЗА
-// ===============================
+// ========================================
 
 function updateSummary() {
 
@@ -272,85 +195,59 @@ function updateSummary() {
         document.getElementById("summaryPrice");
 
     if (summaryGame) {
-
         summaryGame.textContent =
             selectedGame || "—";
-
     }
 
     if (summaryPackage) {
-
         summaryPackage.textContent =
             selectedPackage?.name || "—";
-
     }
 
     if (summaryPlayer) {
-
         summaryPlayer.textContent =
             playerId;
-
     }
 
     if (summaryPrice) {
-
         summaryPrice.textContent =
             formatSum(
                 selectedPackage?.price || 0
             );
-
     }
-
 }
 
 
-// ===============================
+// ========================================
 // РЕГИСТРАЦИЯ ПОЛЬЗОВАТЕЛЯ
-// ===============================
+// ========================================
 
 async function registerUser() {
 
     if (!telegramUser.id) {
-
-        console.log(
-            "Telegram user ID отсутствует"
-        );
-
+        console.log("Telegram user ID отсутствует");
         return;
-
     }
 
     try {
 
         const response =
-            await fetch(
-                `${API_URL}/user`,
-                {
-                    method: "POST",
+            await fetch(`${API_URL}/user`, {
+                method: "POST",
 
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
+                headers: {
+                    "Content-Type": "application/json"
+                },
 
-                    body: JSON.stringify({
-
-                        telegram_id:
-                            telegramUser.id,
-
-                        username:
-                            telegramUser.username || "",
-
-                        first_name:
-                            telegramUser.first_name || ""
-
-                    })
-
-                }
-            );
+                body: JSON.stringify({
+                    telegram_id: telegramUser.id,
+                    username: telegramUser.username || "",
+                    first_name: telegramUser.first_name || ""
+                })
+            });
 
         console.log(
-            "Регистрация пользователя:",
+            "Регистрация:",
             response.status
         );
 
@@ -360,15 +257,13 @@ async function registerUser() {
             "Ошибка регистрации:",
             error
         );
-
     }
-
 }
 
 
-// ===============================
-// ЗАГРУЗКА БАЛАНСА
-// ===============================
+// ========================================
+// БАЛАНС
+// ========================================
 
 async function loadBalance() {
 
@@ -379,7 +274,6 @@ async function loadBalance() {
         );
 
         return;
-
     }
 
     try {
@@ -390,11 +284,9 @@ async function loadBalance() {
             );
 
         if (!response.ok) {
-
             throw new Error(
-                "Ошибка сервера"
+                `HTTP ${response.status}`
             );
-
         }
 
         const data =
@@ -421,15 +313,13 @@ async function loadBalance() {
             "Ошибка загрузки баланса:",
             error
         );
-
     }
-
 }
 
 
-// ===============================
-// ПОКАЗ СЕКЦИИ
-// ===============================
+// ========================================
+// СЕКЦИЯ
+// ========================================
 
 function showSection(id) {
 
@@ -441,13 +331,12 @@ function showSection(id) {
     element.classList.remove(
         "hidden-section"
     );
-
 }
 
 
-// ===============================
+// ========================================
 // ПРОКРУТКА
-// ===============================
+// ========================================
 
 function scrollToElement(id) {
 
@@ -464,53 +353,37 @@ function scrollToElement(id) {
         });
 
     }, 100);
-
 }
 
 
-// =====================================================
-// ПОПОЛНЕНИЕ БАЛАНСА
-// =====================================================
+// ========================================
+// ОКНО ПОПОЛНЕНИЯ
+// ========================================
 
 function openDeposit() {
 
     console.log(
-        "💰 Открываем пополнение"
+        "💰 Открытие пополнения"
     );
 
-
-    // Если окно уже существует —
-    // просто показываем его
-
-    let oldModal =
+    let modal =
         document.getElementById(
             "depositScreen"
         );
 
+    if (modal) {
 
-    if (oldModal) {
-
-        oldModal.style.display =
-            "flex";
+        modal.style.display = "flex";
 
         return;
-
     }
 
 
-    // ===============================
-    // СОЗДАЁМ ОКНО
-    // ===============================
-
-    const modal =
+    modal =
         document.createElement("div");
 
-    modal.id =
-        "depositScreen";
-
-    modal.className =
-        "deposit-modal";
-
+    modal.id = "depositScreen";
+    modal.className = "deposit-modal";
 
     modal.innerHTML = `
 
@@ -524,21 +397,17 @@ function openDeposit() {
                 ✕
             </button>
 
-
             <div class="deposit-icon">
                 💰
             </div>
-
 
             <h2>
                 Пополнение баланса
             </h2>
 
-
             <p class="deposit-description">
                 Выберите сумму пополнения
             </p>
-
 
             <div class="deposit-presets">
 
@@ -550,7 +419,6 @@ function openDeposit() {
                     10 000
                 </button>
 
-
                 <button
                     type="button"
                     class="deposit-preset"
@@ -559,7 +427,6 @@ function openDeposit() {
                     25 000
                 </button>
 
-
                 <button
                     type="button"
                     class="deposit-preset"
@@ -567,7 +434,6 @@ function openDeposit() {
                 >
                     50 000
                 </button>
-
 
                 <button
                     type="button"
@@ -579,7 +445,6 @@ function openDeposit() {
 
             </div>
 
-
             <input
                 id="depositAmount"
                 class="deposit-input"
@@ -590,14 +455,12 @@ function openDeposit() {
                 placeholder="Введите сумму"
             >
 
-
             <div
                 class="deposit-selected"
                 id="depositSelected"
             >
                 Сумма не выбрана
             </div>
-
 
             <button
                 type="button"
@@ -607,6 +470,10 @@ function openDeposit() {
                 💳 Пополнить
             </button>
 
+            <div
+                id="depositResult"
+                class="deposit-result"
+            ></div>
 
             <p class="deposit-note">
                 Минимальная сумма: 1 000 сум
@@ -616,37 +483,39 @@ function openDeposit() {
 
     `;
 
-
     document.body.appendChild(modal);
 
+    addDepositStyles();
 
-    // ===============================
+
+    // ========================================
     // ЭЛЕМЕНТЫ
-    // ===============================
+    // ========================================
 
     const amountInput =
         document.getElementById(
             "depositAmount"
         );
 
-
     const selectedText =
         document.getElementById(
             "depositSelected"
         );
-
 
     const closeButton =
         document.getElementById(
             "depositClose"
         );
 
-
     const confirmButton =
         document.getElementById(
             "depositConfirm"
         );
 
+    const resultElement =
+        document.getElementById(
+            "depositResult"
+        );
 
     const presetButtons =
         document.querySelectorAll(
@@ -654,9 +523,9 @@ function openDeposit() {
         );
 
 
-    // ===============================
+    // ========================================
     // БЫСТРЫЕ СУММЫ
-    // ===============================
+    // ========================================
 
     presetButtons.forEach(button => {
 
@@ -669,29 +538,27 @@ function openDeposit() {
                         this.dataset.amount
                     );
 
-
                 amountInput.value =
                     amount;
-
 
                 selectedText.textContent =
                     `Выбрано: ${formatSum(amount)}`;
 
+                presetButtons.forEach(item => {
 
-                presetButtons.forEach(
-                    item => {
+                    item.classList.remove(
+                        "selected"
+                    );
 
-                        item.classList.remove(
-                            "selected"
-                        );
-
-                    }
-                );
-
+                });
 
                 this.classList.add(
                     "selected"
                 );
+
+                if (resultElement) {
+                    resultElement.innerHTML = "";
+                }
 
             }
         );
@@ -699,9 +566,9 @@ function openDeposit() {
     });
 
 
-    // ===============================
+    // ========================================
     // ВВОД СУММЫ
-    // ===============================
+    // ========================================
 
     amountInput.addEventListener(
         "input",
@@ -710,6 +577,9 @@ function openDeposit() {
             const amount =
                 Number(this.value);
 
+            presetButtons.forEach(item => {
+                item.classList.remove("selected");
+            });
 
             if (amount > 0) {
 
@@ -723,35 +593,38 @@ function openDeposit() {
 
             }
 
+            if (resultElement) {
+                resultElement.innerHTML = "";
+            }
         }
     );
 
 
-    // ===============================
-    // ЗАКРЫТИЕ
-    // ===============================
+    // ========================================
+    // ЗАКРЫТЬ
+    // ========================================
 
     closeButton.addEventListener(
         "click",
         function () {
 
-            modal.style.display =
-                "none";
+            modal.style.display = "none";
 
         }
     );
 
 
+    // ========================================
+    // ЗАКРЫТИЕ ПО ФОНУ
+    // ========================================
+
     modal.addEventListener(
         "click",
         function (event) {
 
-            if (
-                event.target === modal
-            ) {
+            if (event.target === modal) {
 
-                modal.style.display =
-                    "none";
+                modal.style.display = "none";
 
             }
 
@@ -759,48 +632,51 @@ function openDeposit() {
     );
 
 
-    // ===============================
+    // ========================================
     // ПОПОЛНИТЬ
-    // ===============================
+    // ========================================
 
     confirmButton.addEventListener(
         "click",
-        function () {
-
-            createDeposit();
-
-        }
+        createDeposit
     );
-
-
-    // ===============================
-    // CSS ОКНА
-    // ===============================
-
-    addDepositStyles();
-
 }
 
 
-// =====================================================
-// ОТПРАВКА ЗАЯВКИ НА СЕРВЕР
-// =====================================================
+// ========================================
+// СОЗДАНИЕ ЗАЯВКИ
+// ========================================
 
 async function createDeposit() {
+
+    console.log(
+        "💳 Начинаем создание заявки"
+    );
 
     const amountInput =
         document.getElementById(
             "depositAmount"
         );
 
-
     const confirmButton =
         document.getElementById(
             "depositConfirm"
         );
 
+    const resultElement =
+        document.getElementById(
+            "depositResult"
+        );
 
-    if (!amountInput) return;
+
+    if (!amountInput) {
+
+        console.error(
+            "depositAmount не найден"
+        );
+
+        return;
+    }
 
 
     const amount =
@@ -809,40 +685,53 @@ async function createDeposit() {
         );
 
 
-    // ===============================
+    // ========================================
     // ПРОВЕРКА СУММЫ
-    // ===============================
+    // ========================================
 
     if (!amount || amount < 1000) {
 
-        showMessage(
-            "Минимальная сумма пополнения — 1 000 сум."
-        );
+        if (resultElement) {
+
+            resultElement.className =
+                "deposit-result error";
+
+            resultElement.innerHTML =
+                "❌ Минимальная сумма — 1 000 сум";
+
+        }
 
         return;
-
     }
 
+
+    // ========================================
+    // ПРОВЕРКА TELEGRAM
+    // ========================================
 
     if (!telegramUser.id) {
 
-        showMessage(
-            "Откройте BuyPay через Telegram."
-        );
+        if (resultElement) {
+
+            resultElement.className =
+                "deposit-result error";
+
+            resultElement.innerHTML =
+                "❌ Откройте приложение через Telegram";
+
+        }
 
         return;
-
     }
 
 
-    // ===============================
-    // БЛОКИРУЕМ КНОПКУ
-    // ===============================
+    // ========================================
+    // СОСТОЯНИЕ ОТПРАВКИ
+    // ========================================
 
     if (confirmButton) {
 
-        confirmButton.disabled =
-            true;
+        confirmButton.disabled = true;
 
         confirmButton.textContent =
             "⏳ Отправляем...";
@@ -850,7 +739,27 @@ async function createDeposit() {
     }
 
 
+    if (resultElement) {
+
+        resultElement.className =
+            "deposit-result loading";
+
+        resultElement.innerHTML =
+            "⏳ Создаём заявку...";
+
+    }
+
+
     try {
+
+        console.log(
+            "📤 Отправляем:",
+            {
+                telegram_id: telegramUser.id,
+                amount: amount
+            }
+        );
+
 
         const response =
             await fetch(
@@ -872,83 +781,165 @@ async function createDeposit() {
                             amount
 
                     })
-
                 }
             );
 
 
-        const data =
-            await response.json();
+        console.log(
+            "📥 HTTP:",
+            response.status
+        );
+
+
+        // ========================================
+        // ЧИТАЕМ ОТВЕТ
+        // ========================================
+
+        const rawText =
+            await response.text();
 
 
         console.log(
-            "Ответ сервера:",
-            data
+            "📥 Ответ сервера:",
+            rawText
         );
 
+
+        let data = {};
+
+        try {
+
+            data =
+                JSON.parse(rawText);
+
+        } catch {
+
+            data = {
+                detail: rawText
+            };
+
+        }
+
+
+        // ========================================
+        // ОШИБКА СЕРВЕРА
+        // ========================================
 
         if (!response.ok) {
 
-            throw new Error(
+            const errorText =
                 data.detail ||
-                "Не удалось создать заявку"
+                data.message ||
+                `Ошибка сервера: ${response.status}`;
+
+            throw new Error(
+                errorText
+            );
+        }
+
+
+        // ========================================
+        // НЕТ НОМЕРА ЗАЯВКИ
+        // ========================================
+
+        if (!data.deposit_id) {
+
+            console.warn(
+                "Сервер не вернул deposit_id",
+                data
             );
 
         }
 
-
-        // ===============================
-        // ЗАЯВКА СОЗДАНА
-        // ===============================
 
         const depositId =
-            data.deposit_id;
-
+            data.deposit_id ||
+            "—";
 
         const depositAmount =
-            data.amount || amount;
-
-
-        const modal =
-            document.getElementById(
-                "depositScreen"
+            Number(
+                data.amount || amount
             );
 
 
-        if (modal) {
+        // ========================================
+        // УСПЕХ
+        // ========================================
 
-            modal.style.display =
-                "none";
+        if (resultElement) {
+
+            resultElement.className =
+                "deposit-result success";
+
+            resultElement.innerHTML = `
+
+                <div class="success-icon">
+                    ✅
+                </div>
+
+                <strong>
+                    Заявка создана!
+                </strong>
+
+                <span>
+                    Номер заявки:
+                    <b>#${depositId}</b>
+                </span>
+
+                <span>
+                    Сумма:
+                    <b>${formatSum(depositAmount)}</b>
+                </span>
+
+                <small>
+                    Ожидайте подтверждения администратора.
+                </small>
+
+            `;
 
         }
 
 
-        showMessage(
-            `Заявка №${depositId} создана!\n\n` +
-            `Сумма: ${formatSum(depositAmount)}\n\n` +
-            `После проверки администратором баланс будет пополнен.`
-        );
+        // ========================================
+        // ОБНОВЛЯЕМ БАЛАНС
+        // ========================================
 
-
-        console.log(
-            "✅ Заявка на пополнение создана:",
-            depositId
-        );
+        await loadBalance();
 
 
     } catch (error) {
 
         console.error(
-            "Ошибка пополнения:",
+            "❌ Ошибка создания заявки:",
             error
         );
 
 
-        showMessage(
-            "Не удалось создать заявку.\n\n" +
-            error.message
-        );
+        if (resultElement) {
 
+            resultElement.className =
+                "deposit-result error";
+
+            resultElement.innerHTML = `
+
+                <div class="error-icon">
+                    ❌
+                </div>
+
+                <strong>
+                    Не удалось создать заявку
+                </strong>
+
+                <span>
+                    ${escapeHtml(
+                        error.message ||
+                        "Неизвестная ошибка"
+                    )}
+                </span>
+
+            `;
+
+        }
 
     } finally {
 
@@ -963,13 +954,27 @@ async function createDeposit() {
         }
 
     }
-
 }
 
 
-// =====================================================
+// ========================================
+// БЕЗОПАСНЫЙ ВЫВОД ТЕКСТА
+// ========================================
+
+function escapeHtml(text) {
+
+    return String(text)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+
+// ========================================
 // CSS ПОПОЛНЕНИЯ
-// =====================================================
+// ========================================
 
 function addDepositStyles() {
 
@@ -978,9 +983,7 @@ function addDepositStyles() {
             "depositStyles"
         )
     ) {
-
         return;
-
     }
 
 
@@ -1011,7 +1014,7 @@ function addDepositStyles() {
             padding: 20px;
 
             background:
-                rgba(0, 0, 0, 0.72);
+                rgba(0, 0, 0, 0.75);
 
             backdrop-filter:
                 blur(10px);
@@ -1026,6 +1029,12 @@ function addDepositStyles() {
             width: 100%;
 
             max-width: 420px;
+
+            max-height: 90vh;
+
+            overflow-y: auto;
+
+            box-sizing: border-box;
 
             padding: 28px 20px 22px;
 
@@ -1160,7 +1169,8 @@ function addDepositStyles() {
 
             padding: 13px 8px;
 
-            border: 1px solid
+            border:
+                1px solid
                 rgba(255,255,255,0.10);
 
             border-radius: 14px;
@@ -1186,9 +1196,6 @@ function addDepositStyles() {
 
             background:
                 rgba(108,99,255,0.25);
-
-            transform:
-                scale(1.02);
 
         }
 
@@ -1277,18 +1284,6 @@ function addDepositStyles() {
 
             cursor: pointer;
 
-            box-shadow:
-                0 10px 30px
-                rgba(108,99,255,0.25);
-
-        }
-
-
-        .deposit-confirm:active {
-
-            transform:
-                scale(0.98);
-
         }
 
 
@@ -1298,6 +1293,114 @@ function addDepositStyles() {
 
             cursor:
                 not-allowed;
+
+        }
+
+
+        .deposit-result {
+
+            margin-top: 16px;
+
+            padding: 14px;
+
+            border-radius: 15px;
+
+            font-size: 14px;
+
+            line-height: 1.5;
+
+        }
+
+
+        .deposit-result.loading {
+
+            background:
+                rgba(255,255,255,0.06);
+
+            color:
+                rgba(255,255,255,0.8);
+
+        }
+
+
+        .deposit-result.success {
+
+            background:
+                rgba(34,197,94,0.12);
+
+            border:
+                1px solid
+                rgba(34,197,94,0.25);
+
+            color: #d8ffe3;
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 6px;
+
+        }
+
+
+        .deposit-result.success .success-icon {
+
+            font-size: 30px;
+
+        }
+
+
+        .deposit-result.success strong {
+
+            color: white;
+
+            font-size: 17px;
+
+        }
+
+
+        .deposit-result.success small {
+
+            margin-top: 4px;
+
+            color:
+                rgba(255,255,255,0.6);
+
+        }
+
+
+        .deposit-result.error {
+
+            background:
+                rgba(239,68,68,0.12);
+
+            border:
+                1px solid
+                rgba(239,68,68,0.25);
+
+            color: #ffd7d7;
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 6px;
+
+        }
+
+
+        .deposit-result.error .error-icon {
+
+            font-size: 30px;
+
+        }
+
+
+        .deposit-result.error strong {
+
+            color: white;
+
+            font-size: 17px;
 
         }
 
@@ -1318,13 +1421,12 @@ function addDepositStyles() {
 
 
     document.head.appendChild(style);
-
 }
 
 
-// =====================================================
+// ========================================
 // МОИ ЗАКАЗЫ
-// =====================================================
+// ========================================
 
 function showOrders() {
 
@@ -1335,9 +1437,9 @@ function showOrders() {
 }
 
 
-// =====================================================
+// ========================================
 // ПОМОЩЬ
-// =====================================================
+// ========================================
 
 function showHelp() {
 
@@ -1348,9 +1450,9 @@ function showHelp() {
 }
 
 
-// =====================================================
+// ========================================
 // ИСТОРИЯ ПОПОЛНЕНИЙ
-// =====================================================
+// ========================================
 
 async function showDepositHistory() {
 
@@ -1361,7 +1463,6 @@ async function showDepositHistory() {
         );
 
         return;
-
     }
 
 
@@ -1376,7 +1477,7 @@ async function showDepositHistory() {
         if (!response.ok) {
 
             throw new Error(
-                "Ошибка загрузки истории"
+                `HTTP ${response.status}`
             );
 
         }
@@ -1396,7 +1497,6 @@ async function showDepositHistory() {
             );
 
             return;
-
         }
 
 
@@ -1413,24 +1513,15 @@ async function showDepositHistory() {
 
 
                 if (status === "pending") {
+                    status = "⏳ На проверке";
+                }
 
-                    status =
-                        "⏳ На проверке";
+                if (status === "confirmed") {
+                    status = "✅ Подтверждено";
+                }
 
-                } else if (
-                    status === "confirmed"
-                ) {
-
-                    status =
-                        "✅ Подтверждено";
-
-                } else if (
-                    status === "rejected"
-                ) {
-
-                    status =
-                        "❌ Отклонено";
-
+                if (status === "rejected") {
+                    status = "❌ Отклонено";
                 }
 
 
@@ -1448,6 +1539,7 @@ async function showDepositHistory() {
     } catch (error) {
 
         console.error(
+            "Ошибка истории:",
             error
         );
 
@@ -1461,9 +1553,9 @@ async function showDepositHistory() {
 }
 
 
-// =====================================================
+// ========================================
 // СОЗДАНИЕ ЗАКАЗА
-// =====================================================
+// ========================================
 
 async function createOrder() {
 
@@ -1474,7 +1566,6 @@ async function createOrder() {
         );
 
         return;
-
     }
 
 
@@ -1485,7 +1576,6 @@ async function createOrder() {
         );
 
         return;
-
     }
 
 
@@ -1508,7 +1598,6 @@ async function createOrder() {
         playerInput?.focus();
 
         return;
-
     }
 
 
@@ -1519,7 +1608,6 @@ async function createOrder() {
         );
 
         return;
-
     }
 
 
@@ -1533,20 +1621,18 @@ async function createOrder() {
         );
 
         return;
-
     }
 
 
     showMessage(
         "Функция покупки будет подключена следующим этапом."
     );
-
 }
 
 
-// =====================================================
-// КНОПКИ
-// =====================================================
+// ========================================
+// КНОПКА ОБНОВЛЕНИЯ БАЛАНСА
+// ========================================
 
 const refreshButton =
     document.getElementById(
@@ -1558,15 +1644,14 @@ if (refreshButton) {
 
     refreshButton.addEventListener(
         "click",
-        function () {
-
-            loadBalance();
-
-        }
+        loadBalance
     );
-
 }
 
+
+// ========================================
+// КНОПКА ПОПОЛНЕНИЯ
+// ========================================
 
 const depositButton =
     document.getElementById(
@@ -1580,13 +1665,20 @@ if (depositButton) {
         "click",
         function () {
 
+            console.log(
+                "🔥 Кнопка пополнения нажата"
+            );
+
             openDeposit();
 
         }
     );
-
 }
 
+
+// ========================================
+// ID ИГРОКА
+// ========================================
 
 const playerInput =
     document.getElementById(
@@ -1600,13 +1692,12 @@ if (playerInput) {
         "input",
         updateSummary
     );
-
 }
 
 
-// =====================================================
+// ========================================
 // ПРИВЕТСТВИЕ
-// =====================================================
+// ========================================
 
 const welcomeText =
     document.getElementById(
@@ -1625,15 +1716,14 @@ if (
 }
 
 
-// =====================================================
+// ========================================
 // ЗАПУСК
-// =====================================================
+// ========================================
 
 registerUser();
-
 loadBalance();
 
 
 console.log(
-    "🔥 BuyPay Web App v25 запущен"
+    "🔥 BuyPay Web App v26 запущен"
 );
