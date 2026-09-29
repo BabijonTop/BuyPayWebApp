@@ -63,7 +63,7 @@ body::after {
 .container {
     width: min(94%, 600px);
     margin: auto;
-    padding: 20px 0 100px;
+    padding: 20px 0 180px;
 }
 
 /* ========================================
@@ -625,4 +625,56 @@ button {
     .package {
         padding: 14px;
     }
+}
+/* ========================================
+   ПРАВИЛЬНАЯ ПРОКРУТКА ШАГОВ
+======================================== */
+
+.step-section {
+    scroll-margin-top: 20px;
+}
+
+.show-section {
+    display: block;
+    animation: sectionAppear .55s ease;
+}
+
+/* Чтобы последний блок полностью
+   прокручивался выше нижней панели */
+
+#summarySection {
+    padding-bottom: 50px;
+}
+
+#buyButton {
+    margin-bottom: 35px;
+}
+
+
+/* ========================================
+   НИЖНЯЯ ПАНЕЛЬ
+======================================== */
+
+.bottom-nav {
+    bottom: 12px;
+    z-index: 5000;
+}
+
+
+/* ========================================
+   АНИМАЦИЯ ПОЯВЛЕНИЯ
+======================================== */
+
+@keyframes sectionAppear {
+
+    0% {
+        opacity: 0;
+        transform: translateY(45px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
 }
